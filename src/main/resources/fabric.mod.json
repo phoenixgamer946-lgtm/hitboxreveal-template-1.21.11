@@ -5,13 +5,14 @@
 	"name": "HitboxReveal",
 	"description": "This is an example description! Tell everyone what your mod is about!",
 	"authors": [
-		"Me!"
+		"lwkSlick"
 	],
+	"license": "ARR",
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"homepage": "https://modrinth.com/user/6fLXr7R5",
+		"issues": "https://discord.gg/Kk4gBYNMJ9"
 	},
-	"license": "CC0-1.0",
+
 	"icon": "assets/hitboxreveal/icon.png",
 	"environment": "*",
 	"entrypoints": {
