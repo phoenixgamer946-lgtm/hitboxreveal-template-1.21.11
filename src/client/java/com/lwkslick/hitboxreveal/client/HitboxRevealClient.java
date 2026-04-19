@@ -65,8 +65,10 @@ public class HitboxRevealClient implements ClientModInitializer {
 			Iterator<Map.Entry<UUID, Integer>> it = revealedPlayers.entrySet().iterator();
 			while (it.hasNext()) {
 				Map.Entry<UUID, Integer> entry = it.next();
-				if (entry.getValue() <= 0) it.remove();
-				else entry.setValue(entry.getValue() - 1);
+				if (!ModConfig.permanent) {
+					if (entry.getValue() <= 0) it.remove();
+					else entry.setValue(entry.getValue() - 1);
+				}
 			}
 		});
 
@@ -90,7 +92,7 @@ public class HitboxRevealClient implements ClientModInitializer {
 				else if (dist <= 3.0) color = ModConfig.colorClose;
 				else color = ModConfig.colorDefault;
 
-				if (ModConfig.outline) HitboxRenderer.renderBox(context, player, color, ModConfig.lineWidth);
+				if (ModConfig.outline) HitboxRenderer.renderBox(context, player, color);
 			}
 		});
 	}
