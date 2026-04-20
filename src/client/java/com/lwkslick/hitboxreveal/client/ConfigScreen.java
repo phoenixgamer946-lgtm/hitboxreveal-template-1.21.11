@@ -26,7 +26,7 @@ public class ConfigScreen extends Screen {
     @Override
     protected void init() {
         int cx = width / 2;
-        int y = 38; // push down to make room for heading
+        int y = 30;
 
         y += 12;
         labelDefault = y;
@@ -62,7 +62,7 @@ public class ConfigScreen extends Screen {
                     btn.setMessage(Text.literal(ModConfig.permanent ? "§aPermanent: ON" : "§7Permanent: OFF"));
                 }
         ).dimensions(cx - 100, y, 200, 20).build());
-        y += 22;
+        y += 24;
 
 // Reminder always visible below permanent button
         labelReminder = y;

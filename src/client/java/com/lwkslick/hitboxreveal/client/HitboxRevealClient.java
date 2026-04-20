@@ -81,8 +81,7 @@ public class HitboxRevealClient implements ClientModInitializer {
 				if (!revealedPlayers.containsKey(player.getUuid())) continue;
 				if (player == client.player) continue;
 
-				boolean critReady = player.getVelocity().y < 0
-						&& !player.isOnGround()
+				boolean critReady = !player.isOnGround()
 						&& client.player.getAttackCooldownProgress(0f) >= 1.0f;
 
 				double dist = client.player.distanceTo(player);
