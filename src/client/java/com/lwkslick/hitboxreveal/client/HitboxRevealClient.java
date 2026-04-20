@@ -36,7 +36,7 @@ public class HitboxRevealClient implements ClientModInitializer {
 		));
 
 		AttackEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
-			if (!world.isClient()) return ActionResult.PASS;
+			if (!(world instanceof net.minecraft.client.world.ClientWorld)) return ActionResult.PASS;
 			if (!ModConfig.enabled) return ActionResult.PASS;
 			if (entity instanceof PlayerEntity target) {
 				revealedPlayers.put(target.getUuid(), ModConfig.revealTicks);
