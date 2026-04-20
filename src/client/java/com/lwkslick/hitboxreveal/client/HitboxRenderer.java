@@ -66,7 +66,7 @@ public class HitboxRenderer {
         float len = (float) Math.sqrt(nx*nx + ny*ny + nz*nz);
         if (len == 0) len = 1;
         nx /= len; ny /= len; nz /= len;
-        buf.vertex(mat, x1, y1, z1).color(r, g, b, a).normal(nx, ny, nz).lineWidth(ModConfig.lineWidth);
-        buf.vertex(mat, x2, y2, z2).color(r, g, b, a).normal(nx, ny, nz).lineWidth(ModConfig.lineWidth);
+        buf.vertex(mat, x1, y1, z1).color(r, g, b, a).lineWidth(2.0f).normal(nx, ny, nz);
+        buf.vertex(mat, x2, y2, z2).color(r, g, b, a).lineWidth(2.0f).normal(nx, ny, nz);
     }
 }

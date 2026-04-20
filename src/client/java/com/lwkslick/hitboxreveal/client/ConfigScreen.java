@@ -251,7 +251,7 @@ public class ConfigScreen extends Screen {
         }
 
         @Override protected void updateMessage() {
-            setMessage(Text.literal(String.format("Line Width: %.1f", getWidth())));
+            setMessage(Text.literal(String.format("Line Width: %.1f", (float) getLineWidth())));
         }
         @Override protected void applyValue() {}
     }
