@@ -62,10 +62,10 @@ public class HitboxRevealClient implements ClientModInitializer {
 			}
 
 			// Tick down revealed players
-			Iterator<Map.Entry<UUID, Integer>> it = revealedPlayers.entrySet().iterator();
-			while (it.hasNext()) {
-				Map.Entry<UUID, Integer> entry = it.next();
-				if (!ModConfig.permanent) {
+			if (!ModConfig.permanent) {
+				Iterator<Map.Entry<UUID, Integer>> it = revealedPlayers.entrySet().iterator();
+				while (it.hasNext()) {
+					Map.Entry<UUID, Integer> entry = it.next();
 					if (entry.getValue() <= 0) it.remove();
 					else entry.setValue(entry.getValue() - 1);
 				}

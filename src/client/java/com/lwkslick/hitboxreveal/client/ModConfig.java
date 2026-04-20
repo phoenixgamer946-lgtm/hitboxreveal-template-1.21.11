@@ -7,5 +7,6 @@ public class ModConfig {
     public static int colorCrit       = 0xFFAA00FF; // purple
     public static int revealTicks     = 60;
     public static boolean outline     = true;
+    public static float lineWidth = 2.0f;
     public static boolean permanent   = false;
 }

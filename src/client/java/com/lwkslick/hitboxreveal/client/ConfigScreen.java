@@ -14,8 +14,9 @@ public class ConfigScreen extends Screen {
 
     private HueSlider defaultHue, closeHue, critHue;
     private DurationSlider durationSlider;
+    private LineWidthSlider lineWidthSlider;
 
-    private int labelDefault, labelClose, labelCrit, labelSettings;
+    private int labelDefault, labelClose, labelCrit, labelSettings, labelReminder;
 
     public ConfigScreen(Screen parent) {
         super(Text.literal("HitboxReveal Settings"));
@@ -25,7 +26,7 @@ public class ConfigScreen extends Screen {
     @Override
     protected void init() {
         int cx = width / 2;
-        int y = 18;
+        int y = 38; // push down to make room for heading
 
         y += 12;
         labelDefault = y;
@@ -61,12 +62,18 @@ public class ConfigScreen extends Screen {
                     btn.setMessage(Text.literal(ModConfig.permanent ? "§aPermanent: ON" : "§7Permanent: OFF"));
                 }
         ).dimensions(cx - 100, y, 200, 20).build());
-        y += 24;
+        y += 22;
 
-        // Reminder text drawn in render(), stored y for reference
-        y += 12;
+// Reminder always visible below permanent button
+        labelReminder = y;
+        y += 16;
 
-        // Outline toggle
+// Line width slider
+        lineWidthSlider = new LineWidthSlider(cx - 100, y, 200, ModConfig.lineWidth);
+        addDrawableChild(lineWidthSlider);
+        y += 28;
+
+// Outline toggle
         addDrawableChild(ButtonWidget.builder(
                 Text.literal("Outline: " + (ModConfig.outline ? "§a✔ ON" : "§c✘ OFF")),
                 btn -> {
@@ -105,8 +112,9 @@ public class ConfigScreen extends Screen {
         renderBackground(ctx, mx, my, delta);
         int cx = width / 2;
 
-        ctx.drawCenteredTextWithShadow(textRenderer, "§e§lHitboxReveal §7Settings", cx, 7, 0xFFFFFF);
-        ctx.drawCenteredTextWithShadow(textRenderer, "§b── Colors ──", cx, 19, 0xFFFFFF);
+        ctx.drawCenteredTextWithShadow(textRenderer, "§6§llwkSlick§e§l's HitboxReveal", cx, 5, 0xFFFFFF);
+        ctx.drawCenteredTextWithShadow(textRenderer, "§7Config Menu", cx, 16, 0xAAAAAA);
+        ctx.drawCenteredTextWithShadow(textRenderer, "§b── Colors ──", cx, 27, 0xFFFFFF);
 
         // Color row labels + preview boxes
         drawColorRow(ctx, cx, labelDefault, "§7Default §e(Normal)", defaultHue);
@@ -115,12 +123,11 @@ public class ConfigScreen extends Screen {
 
         ctx.drawCenteredTextWithShadow(textRenderer, "§b── Options ──", cx, labelSettings + 1, 0xFFFFFF);
 
-        // Permanent reminder — drawn below the permanent button
-        if (ModConfig.permanent) {
-            ctx.drawCenteredTextWithShadow(textRenderer,
-                    "§7Hitboxes won't expire — click again to disable",
-                    cx, labelSettings + 57, 0xAAAAAA);
-        }
+        // Permanent reminder — always shown
+        String reminderText = ModConfig.permanent
+                ? "§c⚠ Hitboxes won't expire — timer disabled"
+                : "§7Timer active — hitboxes expire after duration";
+        ctx.drawCenteredTextWithShadow(textRenderer, reminderText, cx, labelReminder + 2, 0xFFFFFF);
 
         super.render(ctx, mx, my, delta);
     }
@@ -142,6 +149,7 @@ public class ConfigScreen extends Screen {
         ModConfig.colorClose   = closeHue.getArgb();
         ModConfig.colorCrit    = critHue.getArgb();
         ModConfig.revealTicks  = durationSlider.getTicks();
+        ModConfig.lineWidth    = lineWidthSlider.getLineWidth();
         client.setScreen(parent);
     }
 
@@ -226,5 +234,25 @@ public class ConfigScreen extends Screen {
         }
         @Override protected void applyValue() {}
         int getTicks() { return STEPS[Math.min(Math.round((float)(value * (STEPS.length - 1))), STEPS.length - 1)]; }
+    }
+
+    // ── Line Width Slider ─────────────────────────────────────────────────────
+
+    static class LineWidthSlider extends SliderWidget {
+        private static final float MIN = 2.0f, MAX = 8.0f;
+
+        LineWidthSlider(int x, int y, int width, float current) {
+            super(x, y, width, 20, Text.literal(""), (current - MIN) / (MAX - MIN));
+            updateMessage();
+        }
+
+        public float getLineWidth() {
+            return MIN + (float)(value * (MAX - MIN));
+        }
+
+        @Override protected void updateMessage() {
+            setMessage(Text.literal(String.format("Line Width: %.1f", getWidth())));
+        }
+        @Override protected void applyValue() {}
     }
 }
