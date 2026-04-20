@@ -21,24 +21,22 @@ public class HitboxRenderer {
         Vec3d cam = MinecraftClient.getInstance().gameRenderer.getCamera().getCameraPos();
 
         Box box = target.getBoundingBox();
-
         float r = ((argbColor >> 16) & 0xFF) / 255f;
         float g = ((argbColor >> 8)  & 0xFF) / 255f;
         float b = ((argbColor)       & 0xFF) / 255f;
-        float a = ((argbColor >> 24) & 0xFF) / 255f;
 
-        matrices.push();
-        matrices.translate(box.minX - cam.x, box.minY - cam.y, box.minZ - cam.z);
-
-        Matrix4f mat = matrices.peek().getPositionMatrix();
-        float dx = (float)(box.maxX - box.minX);
-        float dy = (float)(box.maxY - box.minY);
-        float dz = (float)(box.maxZ - box.minZ);
-
-        VertexConsumer buf = consumers.getBuffer(RenderLayers.LINES);
-        drawEdges(buf, mat, dx, dy, dz, r, g, b, a);
-
-        matrices.pop();
+        // Outline
+        if (ModConfig.outline) {
+            matrices.push();
+            matrices.translate(box.minX - cam.x, box.minY - cam.y, box.minZ - cam.z);
+            Matrix4f mat = matrices.peek().getPositionMatrix();
+            float dx = (float)(box.maxX - box.minX);
+            float dy = (float)(box.maxY - box.minY);
+            float dz = (float)(box.maxZ - box.minZ);
+            VertexConsumer buf = consumers.getBuffer(RenderLayers.LINES);
+            drawEdges(buf, mat, dx, dy, dz, r, g, b, 1.0f);
+            matrices.pop();
+        }
     }
 
     private static void drawEdges(VertexConsumer buf, Matrix4f mat,

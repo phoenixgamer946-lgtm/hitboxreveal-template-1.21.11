@@ -15,6 +15,7 @@ public class ConfigScreen extends Screen {
     private HueSlider defaultHue, closeHue, critHue;
     private DurationSlider durationSlider;
     private LineWidthSlider lineWidthSlider;
+    private FillOpacitySlider fillOpacitySlider;
 
     private int labelDefault, labelClose, labelCrit, labelSettings, labelReminder;
 
@@ -71,6 +72,10 @@ public class ConfigScreen extends Screen {
 // Line width slider
         lineWidthSlider = new LineWidthSlider(cx - 100, y, 200, ModConfig.lineWidth);
         addDrawableChild(lineWidthSlider);
+        y += 28;
+
+        fillOpacitySlider = new FillOpacitySlider(cx - 100, y, 200, ModConfig.fillOpacity);
+        addDrawableChild(fillOpacitySlider);
         y += 28;
 
 // Outline toggle
@@ -145,11 +150,13 @@ public class ConfigScreen extends Screen {
 
     @Override
     public void close() {
+        ModConfig.save();
         ModConfig.colorDefault = defaultHue.getArgb();
         ModConfig.colorClose   = closeHue.getArgb();
         ModConfig.colorCrit    = critHue.getArgb();
         ModConfig.revealTicks  = durationSlider.getTicks();
         ModConfig.lineWidth    = lineWidthSlider.getLineWidth();
+        ModConfig.fillOpacity  = fillOpacitySlider.getOpacity();
         client.setScreen(parent);
     }
 
@@ -252,6 +259,18 @@ public class ConfigScreen extends Screen {
 
         @Override protected void updateMessage() {
             setMessage(Text.literal(String.format("Line Width: %.1f", (float) getLineWidth())));
+        }
+        @Override protected void applyValue() {}
+    }
+
+    static class FillOpacitySlider extends SliderWidget {
+        FillOpacitySlider(int x, int y, int width, float current) {
+            super(x, y, width, 20, Text.literal(""), current);
+            updateMessage();
+        }
+        public float getOpacity() { return (float) value; }
+        @Override protected void updateMessage() {
+            setMessage(Text.literal(String.format("Fill Opacity: %.0f%%", value * 100)));
         }
         @Override protected void applyValue() {}
     }

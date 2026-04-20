@@ -27,6 +27,7 @@ public class HitboxRevealClient implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
+		ModConfig.load();
 
 		toggleKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
 				"key.hitboxreveal.toggle", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_G, KeyBinding.Category.MISC
