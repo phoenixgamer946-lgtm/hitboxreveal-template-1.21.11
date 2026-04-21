@@ -16,6 +16,10 @@ public class ConfigScreen extends Screen {
 
     // Collapsible color rows
     private ColorRow rowDefault, rowClose, rowCrit, rowGradientTop;
+    private boolean expandedDefault = false;
+    private boolean expandedClose   = false;
+    private boolean expandedCrit    = false;
+    private boolean expandedGradTop = false;
 
     // Option sliders
     private DurationSlider durationSlider;
@@ -52,10 +56,10 @@ public class ConfigScreen extends Screen {
         ctx_label(cx, y[0], "§b── Colors ──");
         y[0] += 12;
 
-        rowDefault    = addColorRow("§7Default §e(Normal)",            ModConfig.colorDefault,   ModConfig.satDefault,   ModConfig.briDefault,   cx, y);
-        rowClose      = addColorRow("§7Close §c(≤ threshold)",         ModConfig.colorClose,     ModConfig.satClose,     ModConfig.briClose,     cx, y);
-        rowCrit       = addColorRow("§7Crit §d(Airborne+full cooldown)",ModConfig.colorCrit,      ModConfig.satCrit,      ModConfig.briCrit,      cx, y);
-        rowGradientTop= addColorRow("§7Gradient §b(Top color)",        ModConfig.colorGradientTop,ModConfig.satGradientTop,ModConfig.briGradientTop,cx, y);
+        rowDefault    = addColorRow("§7Default §e(Normal)",             ModConfig.colorDefault,    ModConfig.satDefault,    ModConfig.briDefault,    cx, y, expandedDefault);
+        rowClose      = addColorRow("§7Close §c(≤ threshold)",          ModConfig.colorClose,      ModConfig.satClose,      ModConfig.briClose,      cx, y, expandedClose);
+        rowCrit       = addColorRow("§7Crit §d(Airborne+full cooldown)", ModConfig.colorCrit,       ModConfig.satCrit,       ModConfig.briCrit,       cx, y, expandedCrit);
+        rowGradientTop= addColorRow("§7Gradient §b(Top color)",         ModConfig.colorGradientTop,ModConfig.satGradientTop,ModConfig.briGradientTop,cx, y, expandedGradTop);
 
         // ── Options ──
         y[0] += 4;
@@ -166,14 +170,19 @@ public class ConfigScreen extends Screen {
 
     // ── Color Row helper ─────────────────────────────────────────────────────
 
-    private ColorRow addColorRow(String label, int argb, float sat, float bri, int cx, int[] y) {
-        // Expand button
+    private ColorRow addColorRow(String label, int argb, float sat, float bri, int cx, int[] y, boolean expanded) {
         ColorRow row = new ColorRow(label, argb, sat, bri);
+        row.expanded = expanded;
 
         row.expandBtn = addDrawableChild(ButtonWidget.builder(
                 Text.literal(row.expanded ? "▼" : "▶"),
                 btn -> {
                     row.expanded = !row.expanded;
+                    // persist before rebuild wipes the row
+                    if (row == rowDefault)     expandedDefault = row.expanded;
+                    else if (row == rowClose)  expandedClose   = row.expanded;
+                    else if (row == rowCrit)   expandedCrit    = row.expanded;
+                    else                       expandedGradTop = row.expanded;
                     btn.setMessage(Text.literal(row.expanded ? "▼" : "▶"));
                     rebuild();
                 }
