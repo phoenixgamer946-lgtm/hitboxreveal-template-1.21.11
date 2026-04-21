@@ -419,7 +419,7 @@ public class ConfigScreen extends Screen {
             updateMessage();
         }
         public float getVectorWidth() { return MIN + (float)(value * (MAX - MIN)); }
-        @Override protected void updateMessage() { setMessage(Text.literal(String.format("Vector Width: %.1f", getWidth()))); }
+        @Override protected void updateMessage() { setMessage(Text.literal(String.format("Vector Width: %.1f", getVectorWidth()))); }
         @Override protected void applyValue() {}
     }
 }
