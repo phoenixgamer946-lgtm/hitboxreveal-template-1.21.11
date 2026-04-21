@@ -13,6 +13,7 @@ import java.util.List;
 public class ConfigScreen extends Screen {
 
     private final Screen parent;
+    private static final String VERSION = "v1.0.3";
 
     // Collapsible color rows
     private ColorRow rowDefault, rowClose, rowCrit, rowGradientTop;
@@ -186,9 +187,9 @@ public class ConfigScreen extends Screen {
                     btn.setMessage(Text.literal(row.expanded ? "▼" : "▶"));
                     rebuild();
                 }
-        ).dimensions(cx - 120, y[0], 16, 20).build());
+        ).dimensions(cx - 122, y[0], 20, 20).build());
 
-        row.hueSlider = new HueSlider(cx - 100, y[0], 160, label, argb, sat, bri);
+        row.hueSlider = new HueSlider(cx - 100, y[0], 200, label, argb, sat, bri);
         addDrawableChild(row.hueSlider);
         row.labelY = y[0];
         y[0] += 24;
@@ -269,6 +270,11 @@ public class ConfigScreen extends Screen {
         int optY = rowGradientTop.labelY + (rowGradientTop.expanded ? 48 : 0) + 28;
         ctx.drawCenteredTextWithShadow(textRenderer, "§b── Options ──", cx, optY, 0xFFFFFF);
 
+        // Footer
+        int fx = 6, fy = height - 30;
+        ctx.drawTextWithShadow(textRenderer, "§7" + VERSION + "  §8|  §7HitboxReveal by lwkSlick", fx, fy, 0x888888);
+        ctx.drawTextWithShadow(textRenderer, "§7Found a bug? Join the §9Discord§7.", fx, fy + 10, 0x888888);
+
         super.render(ctx, mx, my, delta);
     }
 
@@ -276,7 +282,7 @@ public class ConfigScreen extends Screen {
         if (row == null) return;
         // Color preview box
         int color = row.getArgb();
-        int px = cx + 64, py = row.labelY;
+        int px = cx + 104, py = row.labelY;
         ctx.fill(px, py, px + 20, py + 20, 0xFF000000 | (color & 0x00FFFFFF));
         ctx.fill(px, py, px + 20, py + 1, 0xFFFFFFFF);
         ctx.fill(px, py + 19, px + 20, py + 20, 0xFFFFFFFF);
