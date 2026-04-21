@@ -22,6 +22,15 @@ public class ModConfig {
     public static int     colorGradientTop = 0xFF00FFFF;   // top gradient color (ARGB)
     public static float   lookVectorLength = 2.0f;
     public static float   lookVectorWidth  = 2.0f;
+    public static float   satDefault       = 1.0f;
+    public static float   satClose         = 1.0f;
+    public static float   satCrit          = 1.0f;
+    public static float   satGradientTop   = 1.0f;
+    public static float   briDefault       = 1.0f;
+    public static float   briClose         = 1.0f;
+    public static float   briCrit          = 1.0f;
+    public static float   briGradientTop   = 1.0f;
+    public static float   closeRangeThreshold = 3.0f;
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final Path CONFIG_PATH =
@@ -40,6 +49,9 @@ public class ModConfig {
         int colorGradientTop;
         float lookVectorLength;
         float lookVectorWidth;
+        float satDefault, satClose, satCrit, satGradientTop;
+        float briDefault, briClose, briCrit, briGradientTop;
+        float closeRangeThreshold;
     }
 
     public static void load() {
@@ -62,6 +74,15 @@ public class ModConfig {
             colorGradientTop  = d.colorGradientTop != 0 ? d.colorGradientTop : 0xFF00FFFF;
             lookVectorLength  = d.lookVectorLength != 0 ? d.lookVectorLength : 2.0f;
             lookVectorWidth   = d.lookVectorWidth  != 0 ? d.lookVectorWidth  : 2.0f;
+            satDefault       = d.satDefault != 0 ? d.satDefault : 1.0f;
+            satClose         = d.satClose   != 0 ? d.satClose   : 1.0f;
+            satCrit          = d.satCrit    != 0 ? d.satCrit    : 1.0f;
+            satGradientTop   = d.satGradientTop != 0 ? d.satGradientTop : 1.0f;
+            briDefault       = d.briDefault != 0 ? d.briDefault : 1.0f;
+            briClose         = d.briClose   != 0 ? d.briClose   : 1.0f;
+            briCrit          = d.briCrit    != 0 ? d.briCrit    : 1.0f;
+            briGradientTop   = d.briGradientTop != 0 ? d.briGradientTop : 1.0f;
+            closeRangeThreshold = d.closeRangeThreshold != 0 ? d.closeRangeThreshold : 3.0f;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -83,6 +104,15 @@ public class ModConfig {
         d.colorGradientTop = colorGradientTop;
         d.lookVectorLength = lookVectorLength;
         d.lookVectorWidth  = lookVectorWidth;
+        d.satDefault       = satDefault;
+        d.satClose         = satClose;
+        d.satCrit          = satCrit;
+        d.satGradientTop   = satGradientTop;
+        d.briDefault       = briDefault;
+        d.briClose         = briClose;
+        d.briCrit          = briCrit;
+        d.briGradientTop   = briGradientTop;
+        d.closeRangeThreshold = closeRangeThreshold;
         try (Writer w = new FileWriter(CONFIG_PATH.toFile())) {
             GSON.toJson(d, w);
         } catch (Exception e) {

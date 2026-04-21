@@ -89,11 +89,14 @@ public class HitboxRevealClient implements ClientModInitializer {
 
 				int color;
 				if (critReady) color = ModConfig.colorCrit;
-				else if (dist <= 3.0) color = ModConfig.colorClose;
+				else if (dist <= ModConfig.closeRangeThreshold) color = ModConfig.colorClose;
 				else color = ModConfig.colorDefault;
 
 				if (ModConfig.outline) HitboxRenderer.renderBox(context, player, color);
 			}
+		});
+		net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.DISCONNECT.register((handler, client2) -> {
+			revealedPlayers.clear();
 		});
 	}
 }

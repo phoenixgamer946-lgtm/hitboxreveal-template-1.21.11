@@ -7,17 +7,29 @@ import net.minecraft.client.gui.widget.SliderWidget;
 import net.minecraft.text.Text;
 import net.minecraft.util.Util;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ConfigScreen extends Screen {
 
     private final Screen parent;
 
-    private HueSlider defaultHue, closeHue, critHue, gradientTopHue;
+    // Collapsible color rows
+    private ColorRow rowDefault, rowClose, rowCrit, rowGradientTop;
+
+    // Option sliders
     private DurationSlider durationSlider;
     private LineWidthSlider lineWidthSlider;
     private FillOpacitySlider fillOpacitySlider;
+    private CloseRangeSlider closeRangeSlider;
+    private LookVectorLengthSlider lookVectorLengthSlider;
+    private LookVectorWidthSlider lookVectorWidthSlider;
 
-    private int labelDefault, labelClose, labelCrit, labelGradientTop, labelSettings, labelReminder;
+    // Toggle buttons we need refs to for conditional hiding
+    private ButtonWidget permanentBtn, lookVectorBtn, outlineBtn, eyeBoxBtn;
+
+    // All widgets that need layout on rebuild
+    private final List<Runnable> layoutTasks = new ArrayList<>();
 
     public ConfigScreen(Screen parent) {
         super(Text.literal("HitboxReveal Settings"));
@@ -26,103 +38,111 @@ public class ConfigScreen extends Screen {
 
     @Override
     protected void init() {
+        clearChildren();
+        layoutTasks.clear();
+        buildLayout();
+    }
+
+    private void buildLayout() {
         int cx = width / 2;
-        int y = 30;
+        int[] y = {30};
 
-        y += 12;
-        labelDefault = y;
-        y += 10;
-        defaultHue = new HueSlider(cx - 100, y, 160, "Default", ModConfig.colorDefault);
-        addDrawableChild(defaultHue);
-        y += 28;
+        // ── Colors ──
+        y[0] += 12;
+        ctx_label(cx, y[0], "§b── Colors ──");
+        y[0] += 12;
 
-        labelClose = y;
-        y += 10;
-        closeHue = new HueSlider(cx - 100, y, 160, "Close", ModConfig.colorClose);
-        addDrawableChild(closeHue);
-        y += 28;
+        rowDefault    = addColorRow("§7Default §e(Normal)",            ModConfig.colorDefault,   ModConfig.satDefault,   ModConfig.briDefault,   cx, y);
+        rowClose      = addColorRow("§7Close §c(≤ threshold)",         ModConfig.colorClose,     ModConfig.satClose,     ModConfig.briClose,     cx, y);
+        rowCrit       = addColorRow("§7Crit §d(Airborne+full cooldown)",ModConfig.colorCrit,      ModConfig.satCrit,      ModConfig.briCrit,      cx, y);
+        rowGradientTop= addColorRow("§7Gradient §b(Top color)",        ModConfig.colorGradientTop,ModConfig.satGradientTop,ModConfig.briGradientTop,cx, y);
 
-        labelCrit = y;
-        y += 10;
-        critHue = new HueSlider(cx - 100, y, 160, "Crit", ModConfig.colorCrit);
-        addDrawableChild(critHue);
-        y += 28;
+        // ── Options ──
+        y[0] += 4;
+        ctx_label(cx, y[0], "§b── Options ──");
+        y[0] += 12;
 
-        labelGradientTop = y;
-        y += 10;
-        gradientTopHue = new HueSlider(cx - 100, y, 160, "Gradient Top", ModConfig.colorGradientTop);
-        addDrawableChild(gradientTopHue);
-        y += 36;
-
-        labelSettings = y;
-        y += 12;
-
-        durationSlider = new DurationSlider(cx - 100, y, 200, ModConfig.revealTicks);
+        // Duration slider (hidden when permanent)
+        durationSlider = new DurationSlider(cx - 100, y[0], 200, ModConfig.revealTicks);
         addDrawableChild(durationSlider);
-        y += 28;
+        durationSlider.visible = !ModConfig.permanent;
+        if (!ModConfig.permanent) y[0] += 24;
 
         // Permanent toggle
-        addDrawableChild(ButtonWidget.builder(
+        permanentBtn = addDrawableChild(ButtonWidget.builder(
                 Text.literal(ModConfig.permanent ? "§aPermanent: ON" : "§7Permanent: OFF"),
                 btn -> {
                     ModConfig.permanent = !ModConfig.permanent;
                     btn.setMessage(Text.literal(ModConfig.permanent ? "§aPermanent: ON" : "§7Permanent: OFF"));
+                    rebuild();
                 }
-        ).dimensions(cx - 100, y, 200, 20).build());
-        y += 24;
+        ).dimensions(cx - 100, y[0], 200, 20).build());
+        y[0] += 24;
 
-// Reminder always visible below permanent button
-        labelReminder = y;
-        y += 16;
+        // Close range threshold
+        closeRangeSlider = new CloseRangeSlider(cx - 100, y[0], 200, ModConfig.closeRangeThreshold);
+        addDrawableChild(closeRangeSlider);
+        y[0] += 24;
 
-// Line width slider
-        lineWidthSlider = new LineWidthSlider(cx - 100, y, 200, ModConfig.lineWidth);
+        // Line width
+        lineWidthSlider = new LineWidthSlider(cx - 100, y[0], 200, ModConfig.lineWidth);
         addDrawableChild(lineWidthSlider);
-        y += 28;
+        y[0] += 24;
 
-        fillOpacitySlider = new FillOpacitySlider(cx - 100, y, 200, ModConfig.fillOpacity);
+        // Fill opacity
+        fillOpacitySlider = new FillOpacitySlider(cx - 100, y[0], 200, ModConfig.fillOpacity);
         addDrawableChild(fillOpacitySlider);
-        y += 28;
+        y[0] += 24;
 
-// Outline toggle
-        addDrawableChild(ButtonWidget.builder(
+        // Outline toggle
+        outlineBtn = addDrawableChild(ButtonWidget.builder(
                 Text.literal("Outline: " + (ModConfig.outline ? "§a✔ ON" : "§c✘ OFF")),
                 btn -> {
                     ModConfig.outline = !ModConfig.outline;
                     btn.setMessage(Text.literal("Outline: " + (ModConfig.outline ? "§a✔ ON" : "§c✘ OFF")));
                 }
-        ).dimensions(cx - 100, y, 200, 20).build());
-        y += 24;
+        ).dimensions(cx - 100, y[0], 200, 20).build());
+        y[0] += 24;
 
-// Eye height box toggle
-        addDrawableChild(ButtonWidget.builder(
+        // Eye height box toggle
+        eyeBoxBtn = addDrawableChild(ButtonWidget.builder(
                 Text.literal("Eye Box: " + (ModConfig.eyeHeightBox ? "§a✔ ON" : "§c✘ OFF")),
                 btn -> {
                     ModConfig.eyeHeightBox = !ModConfig.eyeHeightBox;
                     btn.setMessage(Text.literal("Eye Box: " + (ModConfig.eyeHeightBox ? "§a✔ ON" : "§c✘ OFF")));
                 }
-        ).dimensions(cx - 100, y, 200, 20).build());
-        y += 24;
+        ).dimensions(cx - 100, y[0], 200, 20).build());
+        y[0] += 24;
 
-// Look vector toggle
-        addDrawableChild(ButtonWidget.builder(
+        // Look vector toggle
+        lookVectorBtn = addDrawableChild(ButtonWidget.builder(
                 Text.literal("Look Vector: " + (ModConfig.lookVector ? "§a✔ ON" : "§c✘ OFF")),
                 btn -> {
                     ModConfig.lookVector = !ModConfig.lookVector;
                     btn.setMessage(Text.literal("Look Vector: " + (ModConfig.lookVector ? "§a✔ ON" : "§c✘ OFF")));
+                    rebuild();
                 }
-        ).dimensions(cx - 100, y, 200, 20).build());
-        y += 28;
+        ).dimensions(cx - 100, y[0], 200, 20).build());
+        y[0] += 24;
+
+        // Look vector sliders (hidden when look vector is OFF)
+        lookVectorLengthSlider = new LookVectorLengthSlider(cx - 100, y[0], 200, ModConfig.lookVectorLength);
+        lookVectorWidthSlider  = new LookVectorWidthSlider(cx - 100, y[0] + 24, 200, ModConfig.lookVectorWidth);
+        addDrawableChild(lookVectorLengthSlider);
+        addDrawableChild(lookVectorWidthSlider);
+        lookVectorLengthSlider.visible = ModConfig.lookVector;
+        lookVectorWidthSlider.visible  = ModConfig.lookVector;
+        if (ModConfig.lookVector) y[0] += 48;
+
+        y[0] += 4;
 
         // Done
         addDrawableChild(ButtonWidget.builder(
-                Text.literal("Done"),
-                btn -> close()
-        ).dimensions(cx - 50, y, 100, 20).build());
+                Text.literal("Done"), btn -> close()
+        ).dimensions(cx - 50, y[0], 100, 20).build());
 
-        // Social buttons — bottom left
-        int bx = 6;
-        int by = height - 24;
+        // Social buttons
+        int bx = 6, by = height - 24;
         addDrawableChild(ButtonWidget.builder(Text.literal("§2Modrinth"),
                 btn -> openUrl("https://modrinth.com/user/lwkSlick")
         ).dimensions(bx, by, 60, 16).build());
@@ -134,9 +154,92 @@ public class ConfigScreen extends Screen {
         ).dimensions(bx + 128, by, 60, 16).build());
     }
 
-    private void openUrl(String url) {
-        Util.getOperatingSystem().open(URI.create(url));
+    /** Saves current slider values, then rebuilds layout (for conditional show/hide) */
+    private void rebuild() {
+        saveToConfig();
+        init();
     }
+
+    private void ctx_label(int cx, int y, String text) {
+        // labels are drawn in render(); we just track the y via the int[] trick
+    }
+
+    // ── Color Row helper ─────────────────────────────────────────────────────
+
+    private ColorRow addColorRow(String label, int argb, float sat, float bri, int cx, int[] y) {
+        // Expand button
+        ColorRow row = new ColorRow(label, argb, sat, bri);
+
+        row.expandBtn = addDrawableChild(ButtonWidget.builder(
+                Text.literal(row.expanded ? "▼" : "▶"),
+                btn -> {
+                    row.expanded = !row.expanded;
+                    btn.setMessage(Text.literal(row.expanded ? "▼" : "▶"));
+                    rebuild();
+                }
+        ).dimensions(cx - 120, y[0], 16, 20).build());
+
+        row.hueSlider = new HueSlider(cx - 100, y[0], 160, label, argb, sat, bri);
+        addDrawableChild(row.hueSlider);
+        row.labelY = y[0];
+        y[0] += 24;
+
+        if (row.expanded) {
+            row.satSlider = new SatSlider(cx - 100, y[0], 160, sat);
+            addDrawableChild(row.satSlider);
+            y[0] += 24;
+            row.briSlider = new BriSlider(cx - 100, y[0], 160, bri);
+            addDrawableChild(row.briSlider);
+            y[0] += 24;
+        }
+
+        return row;
+    }
+
+    static class ColorRow {
+        String label;
+        boolean expanded = false;
+        int labelY;
+        ButtonWidget expandBtn;
+        HueSlider hueSlider;
+        SatSlider satSlider;
+        BriSlider briSlider;
+
+        ColorRow(String label, int argb, float sat, float bri) {
+            this.label = label;
+        }
+
+        int getArgb() {
+            float h = hueSlider != null ? hueSlider.getHue() : 0;
+            float s = satSlider != null ? satSlider.getSat() : 1f;
+            float v = briSlider != null ? briSlider.getBri() : 1f;
+            return hsvToArgb(h, s, v);
+        }
+        float getSat() { return satSlider != null ? satSlider.getSat() : 1f; }
+        float getBri() { return briSlider != null ? briSlider.getBri() : 1f; }
+
+        static int hsvToArgb(float h, float s, float v) {
+            float c = v * s;
+            float x = c * (1 - Math.abs((h / 60f) % 2 - 1));
+            float m = v - c;
+            float r, g, b;
+            int sector = (int)(h / 60) % 6;
+            switch (sector) {
+                case 0 -> { r=c; g=x; b=0; }
+                case 1 -> { r=x; g=c; b=0; }
+                case 2 -> { r=0; g=c; b=x; }
+                case 3 -> { r=0; g=x; b=c; }
+                case 4 -> { r=x; g=0; b=c; }
+                default-> { r=c; g=0; b=x; }
+            }
+            return 0xFF000000
+                    | ((int)((r+m)*255) << 16)
+                    | ((int)((g+m)*255) << 8)
+                    |  (int)((b+m)*255);
+        }
+    }
+
+    // ── Render ───────────────────────────────────────────────────────────────
 
     @Override
     public void render(DrawContext ctx, int mx, int my, float delta) {
@@ -145,61 +248,69 @@ public class ConfigScreen extends Screen {
 
         ctx.drawCenteredTextWithShadow(textRenderer, "§6§llwkSlick§e§l's HitboxReveal", cx, 5, 0xFFFFFF);
         ctx.drawCenteredTextWithShadow(textRenderer, "§7Config Menu", cx, 16, 0xAAAAAA);
-        ctx.drawCenteredTextWithShadow(textRenderer, "§b── Colors ──", cx, 27, 0xFFFFFF);
+        ctx.drawCenteredTextWithShadow(textRenderer, "§b── Colors ──", cx, 30, 0xFFFFFF);
 
-        // Color row labels + preview boxes
-        drawColorRow(ctx, cx, labelDefault, "§7Default §e(Normal)", defaultHue);
-        drawColorRow(ctx, cx, labelClose,   "§7Close §c(≤3 blocks)", closeHue);
-        drawColorRow(ctx, cx, labelCrit,    "§7Crit §d(Airborne + full cooldown)", critHue);
-        drawColorRow(ctx, cx, labelGradientTop, "§7Gradient §b(Top color)", gradientTopHue);
+        // Draw color preview boxes and labels
+        drawColorRowLabel(ctx, cx, rowDefault);
+        drawColorRowLabel(ctx, cx, rowClose);
+        drawColorRowLabel(ctx, cx, rowCrit);
+        drawColorRowLabel(ctx, cx, rowGradientTop);
 
-        ctx.drawCenteredTextWithShadow(textRenderer, "§b── Options ──", cx, labelSettings + 1, 0xFFFFFF);
-
-        // Permanent reminder — always shown
-        String reminderText = ModConfig.permanent
-                ? "§c⚠ Hitboxes won't expire — timer disabled"
-                : "§7Timer active — hitboxes expire after duration";
-        ctx.drawCenteredTextWithShadow(textRenderer, reminderText, cx, labelReminder + 2, 0xFFFFFF);
+        // Options label — find it between color rows and duration
+        int optY = rowGradientTop.labelY + (rowGradientTop.expanded ? 48 : 0) + 28;
+        ctx.drawCenteredTextWithShadow(textRenderer, "§b── Options ──", cx, optY, 0xFFFFFF);
 
         super.render(ctx, mx, my, delta);
     }
 
-    private void drawColorRow(DrawContext ctx, int cx, int y, String label, HueSlider slider) {
-        ctx.drawTextWithShadow(textRenderer, label, cx - 100, y + 1, 0xFFFFFF);
-        // Color preview box — right of slider (slider ends at cx+60, box at cx+64)
-        int color = slider.getArgb();
-        ctx.fill(cx + 64, y + 10, cx + 84, y + 26, 0xFF000000 | (color & 0x00FFFFFF));
-        ctx.fill(cx + 64, y + 10, cx + 84, y + 11, 0xFFFFFFFF);
-        ctx.fill(cx + 64, y + 25, cx + 84, y + 26, 0xFFFFFFFF);
-        ctx.fill(cx + 64, y + 10, cx + 65, y + 26, 0xFFFFFFFF);
-        ctx.fill(cx + 83, y + 10, cx + 84, y + 26, 0xFFFFFFFF);
+    private void drawColorRowLabel(DrawContext ctx, int cx, ColorRow row) {
+        if (row == null) return;
+        // Color preview box
+        int color = row.getArgb();
+        int px = cx + 64, py = row.labelY;
+        ctx.fill(px, py, px + 20, py + 20, 0xFF000000 | (color & 0x00FFFFFF));
+        ctx.fill(px, py, px + 20, py + 1, 0xFFFFFFFF);
+        ctx.fill(px, py + 19, px + 20, py + 20, 0xFFFFFFFF);
+        ctx.fill(px, py, px + 1, py + 20, 0xFFFFFFFF);
+        ctx.fill(px + 19, py, px + 20, py + 20, 0xFFFFFFFF);
+    }
+
+    // ── Save / Close ─────────────────────────────────────────────────────────
+
+    private void saveToConfig() {
+        if (rowDefault != null)     { ModConfig.colorDefault    = rowDefault.getArgb();    ModConfig.satDefault    = rowDefault.getSat();    ModConfig.briDefault    = rowDefault.getBri(); }
+        if (rowClose != null)       { ModConfig.colorClose      = rowClose.getArgb();      ModConfig.satClose      = rowClose.getSat();      ModConfig.briClose      = rowClose.getBri(); }
+        if (rowCrit != null)        { ModConfig.colorCrit       = rowCrit.getArgb();       ModConfig.satCrit       = rowCrit.getSat();       ModConfig.briCrit       = rowCrit.getBri(); }
+        if (rowGradientTop != null) { ModConfig.colorGradientTop= rowGradientTop.getArgb();ModConfig.satGradientTop= rowGradientTop.getSat();ModConfig.briGradientTop= rowGradientTop.getBri(); }
+        if (durationSlider != null)         ModConfig.revealTicks           = durationSlider.getTicks();
+        if (closeRangeSlider != null)       ModConfig.closeRangeThreshold   = closeRangeSlider.getRange();
+        if (lineWidthSlider != null)        ModConfig.lineWidth             = lineWidthSlider.getLineWidth();
+        if (fillOpacitySlider != null)      ModConfig.fillOpacity           = fillOpacitySlider.getOpacity();
+        if (lookVectorLengthSlider != null) ModConfig.lookVectorLength      = lookVectorLengthSlider.getLength();
+        if (lookVectorWidthSlider != null)  ModConfig.lookVectorWidth       = lookVectorWidthSlider.getVectorWidth();
     }
 
     @Override
     public void close() {
+        saveToConfig();
         ModConfig.save();
-        ModConfig.colorDefault = defaultHue.getArgb();
-        ModConfig.colorClose   = closeHue.getArgb();
-        ModConfig.colorCrit    = critHue.getArgb();
-        ModConfig.revealTicks       = durationSlider.getTicks();
-        ModConfig.colorGradientTop  = gradientTopHue.getArgb();
-        ModConfig.lineWidth    = lineWidthSlider.getLineWidth();
-        ModConfig.fillOpacity  = fillOpacitySlider.getOpacity();
+        assert client != null;
         client.setScreen(parent);
     }
 
-    // ── Hue Slider ───────────────────────────────────────────────────────────
-    // Single slider 0–360 hue, full saturation/brightness. Preview updates live.
+    private void openUrl(String url) {
+        Util.getOperatingSystem().open(URI.create(url));
+    }
+
+    // ── Sliders ───────────────────────────────────────────────────────────────
 
     static class HueSlider extends SliderWidget {
         private final String label;
-
-        HueSlider(int x, int y, int width, String label, int argbColor) {
-            super(x, y, width, 20, Text.literal(label), argbToHue(argbColor) / 360.0);
+        HueSlider(int x, int y, int width, String label, int argb, float sat, float bri) {
+            super(x, y, width, 20, Text.literal(label), argbToHue(argb) / 360.0);
             this.label = label;
             updateMessage();
         }
-
         private static double argbToHue(int argb) {
             float r = ((argb >> 16) & 0xFF) / 255f;
             float g = ((argb >> 8)  & 0xFF) / 255f;
@@ -215,79 +326,68 @@ public class ConfigScreen extends Screen {
             if (hue < 0) hue += 360;
             return hue;
         }
-
-        int getArgb() {
-            float hue = (float)(value * 360);
-            // HSV: S=1, V=1
-            float c = 1f, x = c * (1 - Math.abs((hue / 60f) % 2 - 1));
-            float r, g, b;
-            int sector = (int)(hue / 60) % 6;
-            switch (sector) {
-                case 0 -> { r=c; g=x; b=0; }
-                case 1 -> { r=x; g=c; b=0; }
-                case 2 -> { r=0; g=c; b=x; }
-                case 3 -> { r=0; g=x; b=c; }
-                case 4 -> { r=x; g=0; b=c; }
-                default-> { r=c; g=0; b=x; }
-            }
-            return 0xFF000000
-                    | ((int)(r * 255) << 16)
-                    | ((int)(g * 255) << 8)
-                    |  (int)(b * 255);
-        }
-
-        @Override protected void updateMessage() {
-            setMessage(Text.literal(label + " — Hue: " + (int)(value * 360) + "°"));
-        }
+        float getHue() { return (float)(value * 360); }
+        @Override protected void updateMessage() { setMessage(Text.literal(label.replaceAll("§.", "") + " Hue: " + (int)(value * 360) + "°")); }
         @Override protected void applyValue() {}
     }
 
-    // ── Duration Slider ──────────────────────────────────────────────────────
+    static class SatSlider extends SliderWidget {
+        SatSlider(int x, int y, int width, float current) {
+            super(x, y, width, 20, Text.literal(""), current);
+            updateMessage();
+        }
+        float getSat() { return (float) value; }
+        @Override protected void updateMessage() { setMessage(Text.literal(String.format("Saturation: %.0f%%", value * 100))); }
+        @Override protected void applyValue() {}
+    }
+
+    static class BriSlider extends SliderWidget {
+        BriSlider(int x, int y, int width, float current) {
+            super(x, y, width, 20, Text.literal(""), current);
+            updateMessage();
+        }
+        float getBri() { return (float) value; }
+        @Override protected void updateMessage() { setMessage(Text.literal(String.format("Brightness: %.0f%%", value * 100))); }
+        @Override protected void applyValue() {}
+    }
 
     static class DurationSlider extends SliderWidget {
-        // Steps in ticks: 1s to 120s
-        private static final int[] STEPS = {
-                20, 40, 60, 80, 100, 120, 140, 160, 200,
-                240, 300, 400, 600, 800, 1200, 1600, 2000, 2400
-        };
-
+        private static final int[] STEPS = { 20,40,60,80,100,120,140,160,200,240,300,400,600,800,1200,1600,2000,2400 };
         DurationSlider(int x, int y, int width, int currentTicks) {
             super(x, y, width, 20, Text.literal(""), findStep(currentTicks));
             updateMessage();
         }
-
         private static double findStep(int ticks) {
-            for (int i = 0; i < STEPS.length; i++)
-                if (STEPS[i] == ticks) return i / (double)(STEPS.length - 1);
+            for (int i = 0; i < STEPS.length; i++) if (STEPS[i] == ticks) return i / (double)(STEPS.length - 1);
             return 2.0 / (STEPS.length - 1);
         }
-
         @Override protected void updateMessage() {
-            int ticks = getTicks();
-            String display = (ticks % 20 == 0) ? (ticks / 20) + "s" : ticks + " ticks";
-            setMessage(Text.literal("Duration: " + display));
+            int t = getTicks();
+            setMessage(Text.literal("Duration: " + (t % 20 == 0 ? t/20 + "s" : t + " ticks")));
         }
         @Override protected void applyValue() {}
         int getTicks() { return STEPS[Math.min(Math.round((float)(value * (STEPS.length - 1))), STEPS.length - 1)]; }
     }
 
-    // ── Line Width Slider ─────────────────────────────────────────────────────
+    static class CloseRangeSlider extends SliderWidget {
+        private static final float MIN = 1f, MAX = 8f;
+        CloseRangeSlider(int x, int y, int width, float current) {
+            super(x, y, width, 20, Text.literal(""), (current - MIN) / (MAX - MIN));
+            updateMessage();
+        }
+        float getRange() { return MIN + (float)(value * (MAX - MIN)); }
+        @Override protected void updateMessage() { setMessage(Text.literal(String.format("Close Range: %.1f blocks", getRange()))); }
+        @Override protected void applyValue() {}
+    }
 
     static class LineWidthSlider extends SliderWidget {
-        private static final float MIN = 2.0f, MAX = 8.0f;
-
+        private static final float MIN = 2f, MAX = 8f;
         LineWidthSlider(int x, int y, int width, float current) {
             super(x, y, width, 20, Text.literal(""), (current - MIN) / (MAX - MIN));
             updateMessage();
         }
-
-        public float getLineWidth() {
-            return MIN + (float)(value * (MAX - MIN));
-        }
-
-        @Override protected void updateMessage() {
-            setMessage(Text.literal(String.format("Line Width: %.1f", (float) getLineWidth())));
-        }
+        float getLineWidth() { return MIN + (float)(value * (MAX - MIN)); }
+        @Override protected void updateMessage() { setMessage(Text.literal(String.format("Line Width: %.1f", getLineWidth()))); }
         @Override protected void applyValue() {}
     }
 
@@ -296,10 +396,30 @@ public class ConfigScreen extends Screen {
             super(x, y, width, 20, Text.literal(""), current);
             updateMessage();
         }
-        public float getOpacity() { return (float) value; }
-        @Override protected void updateMessage() {
-            setMessage(Text.literal(String.format("Fill Opacity: %.0f%%", value * 100)));
+        float getOpacity() { return (float) value; }
+        @Override protected void updateMessage() { setMessage(Text.literal(String.format("Fill Opacity: %.0f%%", value * 100))); }
+        @Override protected void applyValue() {}
+    }
+
+    static class LookVectorLengthSlider extends SliderWidget {
+        private static final float MIN = 0.5f, MAX = 10f;
+        LookVectorLengthSlider(int x, int y, int width, float current) {
+            super(x, y, width, 20, Text.literal(""), (current - MIN) / (MAX - MIN));
+            updateMessage();
         }
+        float getLength() { return MIN + (float)(value * (MAX - MIN)); }
+        @Override protected void updateMessage() { setMessage(Text.literal(String.format("Vector Length: %.1f", getLength()))); }
+        @Override protected void applyValue() {}
+    }
+
+    static class LookVectorWidthSlider extends SliderWidget {
+        private static final float MIN = 2f, MAX = 8f;
+        LookVectorWidthSlider(int x, int y, int width, float current) {
+            super(x, y, width, 20, Text.literal(""), (current - MIN) / (MAX - MIN));
+            updateMessage();
+        }
+        public float getVectorWidth() { return MIN + (float)(value * (MAX - MIN)); }
+        @Override protected void updateMessage() { setMessage(Text.literal(String.format("Vector Width: %.1f", getWidth()))); }
         @Override protected void applyValue() {}
     }
 }
