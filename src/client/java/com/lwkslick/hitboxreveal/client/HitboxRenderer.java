@@ -44,15 +44,6 @@ public class HitboxRenderer {
         Vec3d offset = lerpedPos.subtract(entityPos);
         Box box = target.getBoundingBox().offset(offset).offset(-cam.x, -cam.y, -cam.z);
 
-        // FRUSTUM CULLING: skip if box is outside camera view
-        // Re-inflate slightly to avoid pop-in at edges
-        Box cullBox = box.expand(0.1);
-        if (!context.frustum().isVisible(new net.minecraft.util.math.Box(
-                cullBox.minX + cam.x, cullBox.minY + cam.y, cullBox.minZ + cam.z,
-                cullBox.maxX + cam.x, cullBox.maxY + cam.y, cullBox.maxZ + cam.z))) {
-            return;
-        }
-
         float r  = ((argbColor >> 16) & 0xFF) / 255f;
         float g  = ((argbColor >> 8)  & 0xFF) / 255f;
         float b  = ((argbColor)       & 0xFF) / 255f;
