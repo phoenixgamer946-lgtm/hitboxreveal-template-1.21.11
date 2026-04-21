@@ -37,7 +37,7 @@ public class ConfigScreen extends Screen {
     private final List<Runnable> layoutTasks = new ArrayList<>();
 
     public ConfigScreen(Screen parent) {
-        super(Text.literal("HitboxReveal Settings"));
+        super(Text.literal("Hitbox Reveal Settings"));
         this.parent = parent;
     }
 
@@ -50,7 +50,7 @@ public class ConfigScreen extends Screen {
 
     private void buildLayout() {
         int cx = width / 2;
-        int[] y = {30};
+        int[] y = {46};
 
         // ── Colors ──
         y[0] += 12;
@@ -146,17 +146,17 @@ public class ConfigScreen extends Screen {
                 Text.literal("Done"), btn -> close()
         ).dimensions(cx - 50, y[0], 100, 20).build());
 
-        // Social buttons
-        int bx = 6, by = height - 24;
+        // Social buttons — same layout as FightAnalyser
+        int socialX = 6, socialY = height - 96;
         addDrawableChild(ButtonWidget.builder(Text.literal("§2Modrinth"),
                 btn -> openUrl("https://modrinth.com/user/lwkSlick")
-        ).dimensions(bx, by, 60, 16).build());
+        ).dimensions(socialX, socialY, 60, 14).build());
         addDrawableChild(ButtonWidget.builder(Text.literal("§cYouTube"),
                 btn -> openUrl("https://youtube.com/@lwkSlick")
-        ).dimensions(bx + 64, by, 60, 16).build());
+        ).dimensions(socialX, socialY + 16, 60, 14).build());
         addDrawableChild(ButtonWidget.builder(Text.literal("§9Discord"),
                 btn -> openUrl("https://discord.gg/lwkSlick")
-        ).dimensions(bx + 128, by, 60, 16).build());
+        ).dimensions(socialX, socialY + 32, 60, 14).build());
     }
 
     /** Saves current slider values, then rebuilds layout (for conditional show/hide) */
@@ -253,28 +253,39 @@ public class ConfigScreen extends Screen {
 
     @Override
     public void render(DrawContext ctx, int mx, int my, float delta) {
+        // 1. dark overlay first — same as FightAnalyser
         renderBackground(ctx, mx, my, delta);
+        ctx.fill(0, 0, width, height, 0xDD050505);
+
         int cx = width / 2;
 
-        ctx.drawCenteredTextWithShadow(textRenderer, "§6§llwkSlick§e§l's HitboxReveal", cx, 5, 0xFFFFFF);
-        ctx.drawCenteredTextWithShadow(textRenderer, "§7Config Menu", cx, 16, 0xAAAAAA);
-        ctx.drawCenteredTextWithShadow(textRenderer, "§b── Colors ──", cx, 30, 0xFFFFFF);
+        // 2. header
+        ctx.drawCenteredTextWithShadow(textRenderer, "§6§llwkSlick§e§l's HitboxReveal", cx, 14, 0xFFFFFF);
+        ctx.drawCenteredTextWithShadow(textRenderer, "§7Config Menu", cx, 25, 0xAAAAAA);
 
-        // Draw color preview boxes and labels
+        // 3. divider under header — same style as FightAnalyser
+        ctx.fill(width / 6, 29, width * 5 / 6, 30, 0xFF222222);
+
+        // 4. colors label
+        ctx.drawCenteredTextWithShadow(textRenderer, "§b── Colors ──", cx, 34, 0xFFFFFF);
+
+        // 5. color preview boxes
         drawColorRowLabel(ctx, cx, rowDefault);
         drawColorRowLabel(ctx, cx, rowClose);
         drawColorRowLabel(ctx, cx, rowCrit);
         drawColorRowLabel(ctx, cx, rowGradientTop);
 
-        // Options label — find it between color rows and duration
+        // 6. options label
         int optY = rowGradientTop.labelY + (rowGradientTop.expanded ? 48 : 0) + 28;
         ctx.drawCenteredTextWithShadow(textRenderer, "§b── Options ──", cx, optY, 0xFFFFFF);
 
-        // Footer
-        int fx = 6, fy = height - 30;
-        ctx.drawTextWithShadow(textRenderer, "§7" + VERSION + "  §8|  §7HitboxReveal by lwkSlick", fx, fy, 0x888888);
-        ctx.drawTextWithShadow(textRenderer, "§7Found a bug? Join the §9Discord§7.", fx, fy + 10, 0x888888);
+        // 7. footer — exactly like FightAnalyser's renderFooter
+        int bx = 6, by = height - 130;
+        ctx.drawTextWithShadow(textRenderer, Text.literal("§7" + VERSION + "  §8|  §7HitboxReveal by lwkSlick"), bx, by, 0x888888);
+        ctx.drawTextWithShadow(textRenderer, Text.literal("§7Found a bug? Contact §blwkSlick§7 on Discord."), bx, by + 10, 0x888888);
+        ctx.drawTextWithShadow(textRenderer, Text.literal("§7Instagram: §8@lwkslick.yt"), bx, by + 20, 0x888888);
 
+        // 8. widgets on top of everything
         super.render(ctx, mx, my, delta);
     }
 
