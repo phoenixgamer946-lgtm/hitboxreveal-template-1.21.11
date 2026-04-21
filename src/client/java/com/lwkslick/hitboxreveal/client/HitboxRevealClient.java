@@ -29,11 +29,12 @@ public class HitboxRevealClient implements ClientModInitializer {
 	public void onInitializeClient() {
 		ModConfig.load();
 
+		KeyBinding.Category hitboxCategory = new KeyBinding.Category(net.minecraft.util.Identifier.of("hitboxreveal", "keycategory"));
 		toggleKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-				"key.hitboxreveal.toggle", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_G, KeyBinding.Category.MISC
+				"key.hitboxreveal.toggle", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_G, hitboxCategory
 		));
 		configKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-				"key.hitboxreveal.config", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_B, KeyBinding.Category.MISC
+				"key.hitboxreveal.config", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_B, hitboxCategory
 		));
 
 		AttackEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
