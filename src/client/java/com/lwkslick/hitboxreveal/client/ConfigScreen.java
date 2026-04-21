@@ -12,12 +12,12 @@ public class ConfigScreen extends Screen {
 
     private final Screen parent;
 
-    private HueSlider defaultHue, closeHue, critHue;
+    private HueSlider defaultHue, closeHue, critHue, gradientTopHue;
     private DurationSlider durationSlider;
     private LineWidthSlider lineWidthSlider;
     private FillOpacitySlider fillOpacitySlider;
 
-    private int labelDefault, labelClose, labelCrit, labelSettings, labelReminder;
+    private int labelDefault, labelClose, labelCrit, labelGradientTop, labelSettings, labelReminder;
 
     public ConfigScreen(Screen parent) {
         super(Text.literal("HitboxReveal Settings"));
@@ -46,6 +46,12 @@ public class ConfigScreen extends Screen {
         y += 10;
         critHue = new HueSlider(cx - 100, y, 160, "Crit", ModConfig.colorCrit);
         addDrawableChild(critHue);
+        y += 28;
+
+        labelGradientTop = y;
+        y += 10;
+        gradientTopHue = new HueSlider(cx - 100, y, 160, "Gradient Top", ModConfig.colorGradientTop);
+        addDrawableChild(gradientTopHue);
         y += 36;
 
         labelSettings = y;
@@ -84,6 +90,26 @@ public class ConfigScreen extends Screen {
                 btn -> {
                     ModConfig.outline = !ModConfig.outline;
                     btn.setMessage(Text.literal("Outline: " + (ModConfig.outline ? "§a✔ ON" : "§c✘ OFF")));
+                }
+        ).dimensions(cx - 100, y, 200, 20).build());
+        y += 24;
+
+// Eye height box toggle
+        addDrawableChild(ButtonWidget.builder(
+                Text.literal("Eye Box: " + (ModConfig.eyeHeightBox ? "§a✔ ON" : "§c✘ OFF")),
+                btn -> {
+                    ModConfig.eyeHeightBox = !ModConfig.eyeHeightBox;
+                    btn.setMessage(Text.literal("Eye Box: " + (ModConfig.eyeHeightBox ? "§a✔ ON" : "§c✘ OFF")));
+                }
+        ).dimensions(cx - 100, y, 200, 20).build());
+        y += 24;
+
+// Look vector toggle
+        addDrawableChild(ButtonWidget.builder(
+                Text.literal("Look Vector: " + (ModConfig.lookVector ? "§a✔ ON" : "§c✘ OFF")),
+                btn -> {
+                    ModConfig.lookVector = !ModConfig.lookVector;
+                    btn.setMessage(Text.literal("Look Vector: " + (ModConfig.lookVector ? "§a✔ ON" : "§c✘ OFF")));
                 }
         ).dimensions(cx - 100, y, 200, 20).build());
         y += 28;
@@ -125,6 +151,7 @@ public class ConfigScreen extends Screen {
         drawColorRow(ctx, cx, labelDefault, "§7Default §e(Normal)", defaultHue);
         drawColorRow(ctx, cx, labelClose,   "§7Close §c(≤3 blocks)", closeHue);
         drawColorRow(ctx, cx, labelCrit,    "§7Crit §d(Airborne + full cooldown)", critHue);
+        drawColorRow(ctx, cx, labelGradientTop, "§7Gradient §b(Top color)", gradientTopHue);
 
         ctx.drawCenteredTextWithShadow(textRenderer, "§b── Options ──", cx, labelSettings + 1, 0xFFFFFF);
 
@@ -154,7 +181,8 @@ public class ConfigScreen extends Screen {
         ModConfig.colorDefault = defaultHue.getArgb();
         ModConfig.colorClose   = closeHue.getArgb();
         ModConfig.colorCrit    = critHue.getArgb();
-        ModConfig.revealTicks  = durationSlider.getTicks();
+        ModConfig.revealTicks       = durationSlider.getTicks();
+        ModConfig.colorGradientTop  = gradientTopHue.getArgb();
         ModConfig.lineWidth    = lineWidthSlider.getLineWidth();
         ModConfig.fillOpacity  = fillOpacitySlider.getOpacity();
         client.setScreen(parent);

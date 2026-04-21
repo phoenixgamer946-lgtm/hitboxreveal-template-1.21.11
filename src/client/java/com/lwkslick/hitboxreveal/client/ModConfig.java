@@ -16,7 +16,12 @@ public class ModConfig {
     public static boolean outline     = true;
     public static float lineWidth     = 2.0f;
     public static float fillOpacity   = 0.25f;
-    public static boolean permanent   = false;
+    public static boolean permanent       = false;
+    public static boolean eyeHeightBox    = false;
+    public static boolean lookVector      = false;
+    public static int     colorGradientTop = 0xFF00FFFF;   // top gradient color (ARGB)
+    public static float   lookVectorLength = 2.0f;
+    public static float   lookVectorWidth  = 2.0f;
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final Path CONFIG_PATH =
@@ -30,6 +35,11 @@ public class ModConfig {
         float lineWidth;
         float fillOpacity;
         boolean permanent;
+        boolean eyeHeightBox;
+        boolean lookVector;
+        int colorGradientTop;
+        float lookVectorLength;
+        float lookVectorWidth;
     }
 
     public static void load() {
@@ -46,7 +56,12 @@ public class ModConfig {
             outline      = d.outline;
             lineWidth    = d.lineWidth;
             fillOpacity  = d.fillOpacity;
-            permanent    = d.permanent;
+            permanent         = d.permanent;
+            eyeHeightBox      = d.eyeHeightBox;
+            lookVector        = d.lookVector;
+            colorGradientTop  = d.colorGradientTop != 0 ? d.colorGradientTop : 0xFF00FFFF;
+            lookVectorLength  = d.lookVectorLength != 0 ? d.lookVectorLength : 2.0f;
+            lookVectorWidth   = d.lookVectorWidth  != 0 ? d.lookVectorWidth  : 2.0f;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -62,7 +77,12 @@ public class ModConfig {
         d.outline      = outline;
         d.lineWidth    = lineWidth;
         d.fillOpacity  = fillOpacity;
-        d.permanent    = permanent;
+        d.permanent        = permanent;
+        d.eyeHeightBox     = eyeHeightBox;
+        d.lookVector       = lookVector;
+        d.colorGradientTop = colorGradientTop;
+        d.lookVectorLength = lookVectorLength;
+        d.lookVectorWidth  = lookVectorWidth;
         try (Writer w = new FileWriter(CONFIG_PATH.toFile())) {
             GSON.toJson(d, w);
         } catch (Exception e) {
