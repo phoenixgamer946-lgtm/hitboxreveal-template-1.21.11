@@ -11,14 +11,13 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import org.joml.Matrix4f;
-import org.joml.Matrix4fc;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 public class HitboxRenderer {
 
     private static final RenderPipeline FILL_PIPELINE = RenderPipeline
-            .builder(new RenderPipeline.Snippet[]{RenderPipelines.POSITION_COLOR_SNIPPET})
+            .builder(RenderPipelines.POSITION_COLOR_SNIPPET)
             .withLocation("pipeline/hitboxreveal_fill")
             .withDepthWrite(false)
             .withCull(false)
@@ -48,7 +47,7 @@ public class HitboxRenderer {
                         (box.minY + box.maxY) * 0.5 * (box.minY + box.maxY) * 0.5 +
                         (box.minZ + box.maxZ) * 0.5 * (box.minZ + box.maxZ) * 0.5
         );
-        float scaledLw = (float) Math.max(1.0f, ModConfig.lineWidth / (float)(dist * 0.3));
+        float scaledLw = Math.max(1.0f, ModConfig.lineWidth / (float)(dist * 0.3));
 
         float r = ((argbColor >> 16) & 0xFF) / 255f;
         float g = ((argbColor >> 8)  & 0xFF) / 255f;
@@ -63,10 +62,10 @@ public class HitboxRenderer {
         float b2 = ((topArgb)       & 0xFF) / 255f;
 
         matrices.push();
+        Matrix4f mat = matrices.peek().getPositionMatrix();
 
         // Fill
         if (fa > 0.01f) {
-            Matrix4f mat = matrices.peek().getPositionMatrix();
             VertexConsumer fill = consumers.getBuffer(FILL_LAYER);
             for (Direction dir : Direction.values()) {
                 boolean isTop = (dir == Direction.UP);
@@ -83,7 +82,6 @@ public class HitboxRenderer {
 
         // Outline
         if (ModConfig.outline) {
-            Matrix4f mat = matrices.peek().getPositionMatrix();
             VertexConsumer buf = consumers.getBuffer(RenderLayers.LINES);
             if (ModConfig.cornerOnly) {
                 drawCorners(buf, mat,
@@ -105,7 +103,6 @@ public class HitboxRenderer {
             Box eyeBox = new Box(
                     box.minX - expand, eyeY - 0.01, box.minZ - expand,
                     box.maxX + expand, eyeY + 0.01, box.maxZ + expand);
-            Matrix4f mat = matrices.peek().getPositionMatrix();
             VertexConsumer buf = consumers.getBuffer(RenderLayers.LINES);
             drawEdges(buf, mat,
                     (float)eyeBox.minX, (float)eyeBox.minY, (float)eyeBox.minZ,
@@ -118,7 +115,6 @@ public class HitboxRenderer {
             Vec3d eyePos = lerpedPos.add(0, target.getStandingEyeHeight(), 0).subtract(cam);
             Vec3d lookDir = target.getRotationVec(tickProgress);
             Vec3d arrowEnd = eyePos.add(lookDir.multiply(ModConfig.lookVectorLength));
-            Matrix4f mat = matrices.peek().getPositionMatrix();
             VertexConsumer buf = consumers.getBuffer(RenderLayers.LINES);
             float lw = ModConfig.lookVectorWidth;
             drawLine(buf, mat,
@@ -187,12 +183,12 @@ public class HitboxRenderer {
                                  float r, float g, float b, float a,
                                  float r2, float g2, float b2, float a2) {
         switch (side) {
-            case DOWN  -> { buf.vertex((Matrix4fc)mat,minX,minY,minZ).color(r,g,b,a);     buf.vertex((Matrix4fc)mat,maxX,minY,minZ).color(r,g,b,a);     buf.vertex((Matrix4fc)mat,maxX,minY,maxZ).color(r,g,b,a);     buf.vertex((Matrix4fc)mat,minX,minY,maxZ).color(r,g,b,a);     }
-            case UP    -> { buf.vertex((Matrix4fc)mat,minX,maxY,minZ).color(r2,g2,b2,a2); buf.vertex((Matrix4fc)mat,minX,maxY,maxZ).color(r2,g2,b2,a2); buf.vertex((Matrix4fc)mat,maxX,maxY,maxZ).color(r2,g2,b2,a2); buf.vertex((Matrix4fc)mat,maxX,maxY,minZ).color(r2,g2,b2,a2); }
-            case NORTH -> { buf.vertex((Matrix4fc)mat,minX,minY,minZ).color(r,g,b,a);     buf.vertex((Matrix4fc)mat,minX,maxY,minZ).color(r2,g2,b2,a2); buf.vertex((Matrix4fc)mat,maxX,maxY,minZ).color(r2,g2,b2,a2); buf.vertex((Matrix4fc)mat,maxX,minY,minZ).color(r,g,b,a);     }
-            case SOUTH -> { buf.vertex((Matrix4fc)mat,minX,minY,maxZ).color(r,g,b,a);     buf.vertex((Matrix4fc)mat,maxX,minY,maxZ).color(r,g,b,a);     buf.vertex((Matrix4fc)mat,maxX,maxY,maxZ).color(r2,g2,b2,a2); buf.vertex((Matrix4fc)mat,minX,maxY,maxZ).color(r2,g2,b2,a2); }
-            case WEST  -> { buf.vertex((Matrix4fc)mat,minX,minY,minZ).color(r,g,b,a);     buf.vertex((Matrix4fc)mat,minX,minY,maxZ).color(r,g,b,a);     buf.vertex((Matrix4fc)mat,minX,maxY,maxZ).color(r2,g2,b2,a2); buf.vertex((Matrix4fc)mat,minX,maxY,minZ).color(r2,g2,b2,a2); }
-            case EAST  -> { buf.vertex((Matrix4fc)mat,maxX,minY,minZ).color(r,g,b,a);     buf.vertex((Matrix4fc)mat,maxX,maxY,minZ).color(r2,g2,b2,a2); buf.vertex((Matrix4fc)mat,maxX,maxY,maxZ).color(r2,g2,b2,a2); buf.vertex((Matrix4fc)mat,maxX,minY,maxZ).color(r,g,b,a);     }
+            case DOWN  -> { buf.vertex(mat,minX,minY,minZ).color(r,g,b,a);     buf.vertex(mat,maxX,minY,minZ).color(r,g,b,a);     buf.vertex(mat,maxX,minY,maxZ).color(r,g,b,a);     buf.vertex(mat,minX,minY,maxZ).color(r,g,b,a);     }
+            case UP    -> { buf.vertex(mat,minX,maxY,minZ).color(r2,g2,b2,a2); buf.vertex(mat,minX,maxY,maxZ).color(r2,g2,b2,a2); buf.vertex(mat,maxX,maxY,maxZ).color(r2,g2,b2,a2); buf.vertex(mat,maxX,maxY,minZ).color(r2,g2,b2,a2); }
+            case NORTH -> { buf.vertex(mat,minX,minY,minZ).color(r,g,b,a);     buf.vertex(mat,minX,maxY,minZ).color(r2,g2,b2,a2); buf.vertex(mat,maxX,maxY,minZ).color(r2,g2,b2,a2); buf.vertex(mat,maxX,minY,minZ).color(r,g,b,a);     }
+            case SOUTH -> { buf.vertex(mat,minX,minY,maxZ).color(r,g,b,a);     buf.vertex(mat,maxX,minY,maxZ).color(r,g,b,a);     buf.vertex(mat,maxX,maxY,maxZ).color(r2,g2,b2,a2); buf.vertex(mat,minX,maxY,maxZ).color(r2,g2,b2,a2); }
+            case WEST  -> { buf.vertex(mat,minX,minY,minZ).color(r,g,b,a);     buf.vertex(mat,minX,minY,maxZ).color(r,g,b,a);     buf.vertex(mat,minX,maxY,maxZ).color(r2,g2,b2,a2); buf.vertex(mat,minX,maxY,minZ).color(r2,g2,b2,a2); }
+            case EAST  -> { buf.vertex(mat,maxX,minY,minZ).color(r,g,b,a);     buf.vertex(mat,maxX,maxY,minZ).color(r2,g2,b2,a2); buf.vertex(mat,maxX,maxY,maxZ).color(r2,g2,b2,a2); buf.vertex(mat,maxX,minY,maxZ).color(r,g,b,a);     }
         }
     }
 
