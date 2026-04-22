@@ -31,6 +31,10 @@ public class ModConfig {
     public static float   briCrit          = 1.0f;
     public static float   briGradientTop   = 1.0f;
     public static float   closeRangeThreshold = 3.0f;
+    public static boolean gradientEnabled     = true;
+    public static boolean perStateGradient    = false;
+    public static int     colorGradientTopClose = 0xFF00FFFF;
+    public static int     colorGradientTopCrit  = 0xFF00FFFF;
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final Path CONFIG_PATH =
@@ -52,6 +56,10 @@ public class ModConfig {
         float satDefault, satClose, satCrit, satGradientTop;
         float briDefault, briClose, briCrit, briGradientTop;
         float closeRangeThreshold;
+        boolean gradientEnabled;
+        boolean perStateGradient;
+        int colorGradientTopClose;
+        int colorGradientTopCrit;
     }
 
     public static void load() {
@@ -83,6 +91,10 @@ public class ModConfig {
             briCrit          = d.briCrit    != 0 ? d.briCrit    : 1.0f;
             briGradientTop   = d.briGradientTop != 0 ? d.briGradientTop : 1.0f;
             closeRangeThreshold = d.closeRangeThreshold != 0 ? d.closeRangeThreshold : 3.0f;
+            gradientEnabled      = d.gradientEnabled;
+            perStateGradient     = d.perStateGradient;
+            colorGradientTopClose = d.colorGradientTopClose != 0 ? d.colorGradientTopClose : 0xFF00FFFF;
+            colorGradientTopCrit  = d.colorGradientTopCrit  != 0 ? d.colorGradientTopCrit  : 0xFF00FFFF;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -113,6 +125,10 @@ public class ModConfig {
         d.briCrit          = briCrit;
         d.briGradientTop   = briGradientTop;
         d.closeRangeThreshold = closeRangeThreshold;
+        d.gradientEnabled      = gradientEnabled;
+        d.perStateGradient     = perStateGradient;
+        d.colorGradientTopClose = colorGradientTopClose;
+        d.colorGradientTopCrit  = colorGradientTopCrit;
         try (Writer w = new FileWriter(CONFIG_PATH.toFile())) {
             GSON.toJson(d, w);
         } catch (Exception e) {

@@ -50,7 +50,11 @@ public class HitboxRenderer {
         float fa = ModConfig.fillOpacity;
 
         // Gradient top color
-        int topArgb = ModConfig.colorGradientTop;
+        int topArgb = ModConfig.gradientEnabled
+                ? (ModConfig.perStateGradient
+                ? resolveGradientTop(argbColor)
+                : ModConfig.colorGradientTop)
+                : argbColor; // no gradient = same as bottom color
         float r2 = ((topArgb >> 16) & 0xFF) / 255f;
         float g2 = ((topArgb >> 8)  & 0xFF) / 255f;
         float b2 = ((topArgb)       & 0xFF) / 255f;
@@ -197,5 +201,11 @@ public class HitboxRenderer {
                                  float x2, float y2, float z2,
                                  float r, float g, float b, float a, float lw) {
         line(buf, mat, x1,y1,z1, x2,y2,z2, r,g,b,a, r,g,b,a, lw);
+    }
+
+    private static int resolveGradientTop(int argbColor) {
+        if ((argbColor & 0x00FFFFFF) == (ModConfig.colorClose & 0x00FFFFFF)) return ModConfig.colorGradientTopClose;
+        if ((argbColor & 0x00FFFFFF) == (ModConfig.colorCrit  & 0x00FFFFFF)) return ModConfig.colorGradientTopCrit;
+        return ModConfig.colorGradientTop;
     }
 }
