@@ -2,8 +2,8 @@
 	"schemaVersion": 1,
 	"id": "hitboxreveal",
 	"version": "${version}",
-	"name": "HitboxReveal",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"name": "Hitbox Reveal",
+	"description": "Reveals a player's hitbox when you land a hit on them. Supports color states, gradients, pulse, fade, and more.",
 	"authors": [
 		"lwkSlick"
 	],
@@ -14,7 +14,7 @@
 	},
 
 	"icon": "assets/hitboxreveal/icon.png",
-	"environment": "*",
+	"environment": "client",
 	"entrypoints": {
 		"main": [
 			"com.lwkslick.hitboxreveal.HitboxReveal"

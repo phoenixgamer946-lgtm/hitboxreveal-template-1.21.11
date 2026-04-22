@@ -139,5 +139,7 @@ public class HitboxRevealClient implements ClientModInitializer {
 		net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.DISCONNECT.register((handler, client2) -> {
 			revealedPlayers.clear();
 		});
+
+		UpdateChecker.checkAsync();
 	}
 }
