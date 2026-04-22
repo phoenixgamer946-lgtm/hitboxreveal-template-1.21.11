@@ -59,7 +59,7 @@ public class HitboxRevealClient implements ClientModInitializer {
 			// Key: config screen
 			while (configKey.wasPressed()) {
 				if (client.currentScreen == null) {
-					client.setScreen(new ConfigScreen(null));
+					client.setScreen(ConfigScreen.create(null));
 				}
 			}
 
