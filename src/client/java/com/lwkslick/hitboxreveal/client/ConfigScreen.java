@@ -172,6 +172,75 @@ public class ConfigScreen {
 
                         .build())
 
+                // ── Effects ──────────────────────────────────────────────────────
+                .category(ConfigCategory.createBuilder()
+                        .name(Text.literal("Effects"))
+
+                        .option(Option.<Boolean>createBuilder()
+                                .name(Text.literal("Fade out"))
+                                .description(OptionDescription.of(Text.literal("Fade the hitbox opacity out as the timer expires.")))
+                                .binding(true, () -> ModConfig.fadeOut, v -> ModConfig.fadeOut = v)
+                                .controller(TickBoxControllerBuilder::create)
+                                .build())
+
+                        .option(Option.<Boolean>createBuilder()
+                                .name(Text.literal("Pulse"))
+                                .description(OptionDescription.of(Text.literal("Animate hitbox opacity with a pulsing effect.")))
+                                .binding(false, () -> ModConfig.pulse, v -> ModConfig.pulse = v)
+                                .controller(TickBoxControllerBuilder::create)
+                                .build())
+
+                        .option(Option.<Float>createBuilder()
+                                .name(Text.literal("Pulse speed"))
+                                .description(OptionDescription.of(Text.literal("How fast the pulse cycles. 1.0 = once per second.")))
+                                .binding(1.0f, () -> ModConfig.pulseSpeed, v -> ModConfig.pulseSpeed = v)
+                                .controller(opt -> FloatSliderControllerBuilder.create(opt).range(0.2f, 5.0f).step(0.1f))
+                                .build())
+
+                        .option(Option.<Boolean>createBuilder()
+                                .name(Text.literal("Corner-only outline"))
+                                .description(OptionDescription.of(Text.literal("Render only the corner brackets instead of the full outline.")))
+                                .binding(false, () -> ModConfig.cornerOnly, v -> ModConfig.cornerOnly = v)
+                                .controller(TickBoxControllerBuilder::create)
+                                .build())
+
+                        .option(Option.<Float>createBuilder()
+                                .name(Text.literal("Corner length"))
+                                .description(OptionDescription.of(Text.literal("Length of each corner bracket segment in blocks.")))
+                                .binding(0.25f, () -> ModConfig.cornerLength, v -> ModConfig.cornerLength = v)
+                                .controller(opt -> FloatSliderControllerBuilder.create(opt).range(0.05f, 1.0f).step(0.05f))
+                                .build())
+
+                        .option(Option.<Boolean>createBuilder()
+                                .name(Text.literal("Range indicator"))
+                                .description(OptionDescription.of(Text.literal("Show a circle on the ground at your close-range threshold radius.")))
+                                .binding(false, () -> ModConfig.rangeIndicator, v -> ModConfig.rangeIndicator = v)
+                                .controller(TickBoxControllerBuilder::create)
+                                .build())
+
+                        .option(Option.<Color>createBuilder()
+                                .name(Text.literal("Range indicator color"))
+                                .description(OptionDescription.of(Text.literal("Color of the range indicator circle.")))
+                                .binding(new Color(ModConfig.colorRangeIndicator, true), () -> new Color(ModConfig.colorRangeIndicator, true), v -> ModConfig.colorRangeIndicator = v.getRGB())
+                                .controller(opt -> ColorControllerBuilder.create(opt).allowAlpha(false))
+                                .build())
+
+                        .option(Option.<Boolean>createBuilder()
+                                .name(Text.literal("Self-reveal"))
+                                .description(OptionDescription.of(Text.literal("Show your own hitbox.")))
+                                .binding(false, () -> ModConfig.selfReveal, v -> ModConfig.selfReveal = v)
+                                .controller(TickBoxControllerBuilder::create)
+                                .build())
+
+                        .option(Option.<Boolean>createBuilder()
+                                .name(Text.literal("Self-reveal permanent"))
+                                .description(OptionDescription.of(Text.literal("Show your own hitbox permanently. If off, only shows after you hit someone.")))
+                                .binding(false, () -> ModConfig.selfRevealPermanent, v -> ModConfig.selfRevealPermanent = v)
+                                .controller(TickBoxControllerBuilder::create)
+                                .build())
+
+                        .build())
+
                 .build()
                 .generateScreen(parent);
     }

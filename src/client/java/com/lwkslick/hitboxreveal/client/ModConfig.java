@@ -35,6 +35,15 @@ public class ModConfig {
     public static boolean perStateGradient    = false;
     public static int     colorGradientTopClose = 0xFF00FFFF;
     public static int     colorGradientTopCrit  = 0xFF00FFFF;
+    public static boolean fadeOut           = true;
+    public static boolean pulse             = false;
+    public static float   pulseSpeed        = 1.0f;
+    public static boolean cornerOnly        = false;
+    public static float   cornerLength      = 0.25f;
+    public static boolean rangeIndicator    = false;
+    public static int     colorRangeIndicator = 0xFF00FFFF;
+    public static boolean selfReveal        = false;
+    public static boolean selfRevealPermanent = false;
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final Path CONFIG_PATH =
@@ -60,6 +69,15 @@ public class ModConfig {
         boolean perStateGradient;
         int colorGradientTopClose;
         int colorGradientTopCrit;
+        boolean fadeOut;
+        boolean pulse;
+        float pulseSpeed;
+        boolean cornerOnly;
+        float cornerLength;
+        boolean rangeIndicator;
+        int colorRangeIndicator;
+        boolean selfReveal;
+        boolean selfRevealPermanent;
     }
 
     public static void load() {
@@ -95,6 +113,15 @@ public class ModConfig {
             perStateGradient     = d.perStateGradient;
             colorGradientTopClose = d.colorGradientTopClose != 0 ? d.colorGradientTopClose : 0xFF00FFFF;
             colorGradientTopCrit  = d.colorGradientTopCrit  != 0 ? d.colorGradientTopCrit  : 0xFF00FFFF;
+            fadeOut              = d.fadeOut;
+            pulse                = d.pulse;
+            pulseSpeed           = d.pulseSpeed != 0 ? d.pulseSpeed : 1.0f;
+            cornerOnly           = d.cornerOnly;
+            cornerLength         = d.cornerLength != 0 ? d.cornerLength : 0.25f;
+            rangeIndicator       = d.rangeIndicator;
+            colorRangeIndicator  = d.colorRangeIndicator != 0 ? d.colorRangeIndicator : 0xFF00FFFF;
+            selfReveal           = d.selfReveal;
+            selfRevealPermanent  = d.selfRevealPermanent;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -129,6 +156,15 @@ public class ModConfig {
         d.perStateGradient     = perStateGradient;
         d.colorGradientTopClose = colorGradientTopClose;
         d.colorGradientTopCrit  = colorGradientTopCrit;
+        d.fadeOut              = fadeOut;
+        d.pulse                = pulse;
+        d.pulseSpeed           = pulseSpeed;
+        d.cornerOnly           = cornerOnly;
+        d.cornerLength         = cornerLength;
+        d.rangeIndicator       = rangeIndicator;
+        d.colorRangeIndicator  = colorRangeIndicator;
+        d.selfReveal           = selfReveal;
+        d.selfRevealPermanent  = selfRevealPermanent;
         try (Writer w = new FileWriter(CONFIG_PATH.toFile())) {
             GSON.toJson(d, w);
         } catch (Exception e) {

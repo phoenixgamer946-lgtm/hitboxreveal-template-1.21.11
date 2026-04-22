@@ -42,12 +42,15 @@ public class HitboxRevealClient implements ClientModInitializer {
 			if (!ModConfig.enabled) return ActionResult.PASS;
 			if (entity instanceof PlayerEntity target) {
 				revealedPlayers.put(target.getUuid(), ModConfig.revealTicks);
+				// Self-reveal on-hit
+				if (ModConfig.selfReveal && !ModConfig.selfRevealPermanent) {
+					revealedPlayers.put(player.getUuid(), ModConfig.revealTicks);
+				}
 			}
 			return ActionResult.PASS;
 		});
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
-			// Key: toggle
 			while (toggleKey.wasPressed()) {
 				ModConfig.enabled = !ModConfig.enabled;
 				if (client.player != null) {
@@ -56,14 +59,12 @@ public class HitboxRevealClient implements ClientModInitializer {
 					);
 				}
 			}
-			// Key: config screen
 			while (configKey.wasPressed()) {
 				if (client.currentScreen == null) {
 					client.setScreen(ConfigScreen.create(null));
 				}
 			}
 
-			// Tick down revealed players
 			if (!ModConfig.permanent) {
 				Iterator<Map.Entry<UUID, Integer>> it = revealedPlayers.entrySet().iterator();
 				while (it.hasNext()) {
@@ -79,23 +80,62 @@ public class HitboxRevealClient implements ClientModInitializer {
 			if (!ModConfig.enabled) return;
 			if (client.world == null || client.player == null) return;
 
+			long now = System.currentTimeMillis();
+
 			for (PlayerEntity player : client.world.getPlayers()) {
+				boolean isSelf = player == client.player;
+
+				// Self-reveal permanent
+				MinecraftClient mc = MinecraftClient.getInstance();
+				boolean isThirdPerson = mc.options.getPerspective().isFirstPerson() == false;
+
+				if (isSelf && ModConfig.selfReveal && ModConfig.selfRevealPermanent) {
+					if (!isThirdPerson) continue;
+					HitboxRenderer.renderBox(context, player, ModConfig.colorDefault, 1.0f);
+					continue;
+				}
+
+				if (isSelf && (!ModConfig.selfReveal || !isThirdPerson || !revealedPlayers.containsKey(player.getUuid()))) continue;
+
+				// Skip self unless self-reveal on-hit is active
+
 				if (!revealedPlayers.containsKey(player.getUuid())) continue;
-				if (player == client.player) continue;
 
 				boolean critReady = !player.isOnGround()
 						&& client.player.getAttackCooldownProgress(0f) >= 1.0f;
-
 				double dist = client.player.distanceTo(player);
 
 				int color;
-				if (critReady) color = ModConfig.colorCrit;
+				if (isSelf) color = ModConfig.colorDefault;
+				else if (critReady) color = ModConfig.colorCrit;
 				else if (dist <= ModConfig.closeRangeThreshold) color = ModConfig.colorClose;
 				else color = ModConfig.colorDefault;
 
-				HitboxRenderer.renderBox(context, player, color);
+				// Fade alpha
+				float alpha = 1.0f;
+				if (ModConfig.fadeOut && !ModConfig.permanent) {
+					int remaining = revealedPlayers.getOrDefault(player.getUuid(), 0);
+					int fadeZone = Math.min(ModConfig.revealTicks, 40); // fade over last 2s
+					if (remaining < fadeZone) {
+						alpha = (float) remaining / fadeZone;
+					}
+				}
+
+				// Pulse alpha (multiplied on top of fade)
+				if (ModConfig.pulse) {
+					float pulse = 0.6f + 0.4f * (float) Math.sin(now / 1000.0 * ModConfig.pulseSpeed * Math.PI * 2);
+					alpha *= pulse;
+				}
+
+				HitboxRenderer.renderBox(context, player, color, alpha);
+			}
+
+			// Range indicator (drawn once around local player's attack range)
+			if (ModConfig.rangeIndicator && client.player != null) {
+				HitboxRenderer.renderRangeCircle(context, client.player);
 			}
 		});
+
 		net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.DISCONNECT.register((handler, client2) -> {
 			revealedPlayers.clear();
 		});
