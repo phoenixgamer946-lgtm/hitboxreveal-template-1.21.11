@@ -280,4 +280,54 @@ public class HitboxRenderer {
         if ((argbColor & 0x00FFFFFF) == (ModConfig.colorCrit  & 0x00FFFFFF)) return ModConfig.colorGradientTopCrit;
         return ModConfig.colorGradientTop;
     }
+
+    public static void renderEntityBox(WorldRenderContext context, net.minecraft.entity.Entity entity, int argbColor, float sizeMulti, boolean outlineOnly) {
+        VertexConsumerProvider consumers = context.consumers();
+        if (consumers == null) return;
+
+        MinecraftClient client = MinecraftClient.getInstance();
+        MatrixStack matrices = context.matrices();
+        Vec3d cam = client.gameRenderer.getCamera().getCameraPos();
+
+        float tickProgress = client.getRenderTickCounter().getTickProgress(false);
+        Vec3d lerpedPos = entity.getLerpedPos(tickProgress);
+        Vec3d entityPos = entity.getEntityPos();
+        Vec3d offset = lerpedPos.subtract(entityPos);
+        Box raw = entity.getBoundingBox().offset(offset).offset(-cam.x, -cam.y, -cam.z);
+
+        // Apply size multiplier from center
+        double cx = (raw.minX + raw.maxX) / 2.0;
+        double cy = (raw.minY + raw.maxY) / 2.0;
+        double cz = (raw.minZ + raw.maxZ) / 2.0;
+        double hw = (raw.maxX - raw.minX) / 2.0 * sizeMulti;
+        double hh = (raw.maxY - raw.minY) / 2.0 * sizeMulti;
+        double hd = (raw.maxZ - raw.minZ) / 2.0 * sizeMulti;
+        Box box = new Box(cx - hw, cy - hh, cz - hd, cx + hw, cy + hh, cz + hd);
+
+        float r = ((argbColor >> 16) & 0xFF) / 255f;
+        float g = ((argbColor >> 8)  & 0xFF) / 255f;
+        float b = ((argbColor)       & 0xFF) / 255f;
+
+        matrices.push();
+        Matrix4f mat = matrices.peek().getPositionMatrix();
+
+        if (!outlineOnly) {
+            float fa = ModConfig.fillOpacity;
+            VertexConsumer fill = consumers.getBuffer(FILL_LAYER);
+            for (Direction dir : Direction.values()) {
+                drawSide(mat, fill, dir,
+                        (float)box.minX, (float)box.minY, (float)box.minZ,
+                        (float)box.maxX, (float)box.maxY, (float)box.maxZ,
+                        r, g, b, fa, r, g, b, fa);
+            }
+        }
+
+        VertexConsumer buf = consumers.getBuffer(RenderLayers.LINES);
+        drawEdges(buf, mat,
+                (float)box.minX, (float)box.minY, (float)box.minZ,
+                (float)box.maxX, (float)box.maxY, (float)box.maxZ,
+                r, g, b, 1.0f, r, g, b, 1.0f, ModConfig.lineWidth);
+
+        matrices.pop();
+    }
 }

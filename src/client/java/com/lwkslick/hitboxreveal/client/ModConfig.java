@@ -45,6 +45,24 @@ public class ModConfig {
     public static boolean selfReveal        = false;
     public static boolean selfRevealPermanent = false;
 
+    // Entities tab
+    public static boolean entityOnlyEnemy     = true;
+
+    public static boolean pearlEnabled        = true;
+    public static int     colorPearl          = 0xFF00FF00;
+    public static float   pearlSizeMulti      = 1.0f;
+    public static boolean pearlOutlineOnly    = false;
+
+    public static boolean arrowEnabled        = true;
+    public static int     colorArrow          = 0xFFFF0000;
+    public static float   arrowSizeMulti      = 1.0f;
+    public static boolean arrowOutlineOnly    = false;
+
+    public static boolean windChargeEnabled   = true;
+    public static int     colorWindCharge     = 0xFF00CCFF;
+    public static float   windChargesSizeMulti = 1.0f;
+    public static boolean windChargeOutlineOnly = false;
+
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final Path CONFIG_PATH =
             FabricLoader.getInstance().getConfigDir().resolve("hitboxreveal.json");
@@ -78,6 +96,10 @@ public class ModConfig {
         int colorRangeIndicator;
         boolean selfReveal;
         boolean selfRevealPermanent;
+        boolean entityOnlyEnemy;
+        boolean pearlEnabled;        int colorPearl;        float pearlSizeMulti;        boolean pearlOutlineOnly;
+        boolean arrowEnabled;        int colorArrow;        float arrowSizeMulti;        boolean arrowOutlineOnly;
+        boolean windChargeEnabled;   int colorWindCharge;   float windChargesSizeMulti;  boolean windChargeOutlineOnly;
     }
 
     public static void load() {
@@ -122,6 +144,19 @@ public class ModConfig {
             colorRangeIndicator  = d.colorRangeIndicator != 0 ? d.colorRangeIndicator : 0xFF00FFFF;
             selfReveal           = d.selfReveal;
             selfRevealPermanent  = d.selfRevealPermanent;
+            entityOnlyEnemy       = d.entityOnlyEnemy;
+            pearlEnabled          = d.pearlEnabled;
+            colorPearl            = d.colorPearl != 0 ? d.colorPearl : 0xFF00FF00;
+            pearlSizeMulti        = d.pearlSizeMulti != 0 ? d.pearlSizeMulti : 1.0f;
+            pearlOutlineOnly      = d.pearlOutlineOnly;
+            arrowEnabled          = d.arrowEnabled;
+            colorArrow            = d.colorArrow != 0 ? d.colorArrow : 0xFFFF0000;
+            arrowSizeMulti        = d.arrowSizeMulti != 0 ? d.arrowSizeMulti : 1.0f;
+            arrowOutlineOnly      = d.arrowOutlineOnly;
+            windChargeEnabled     = d.windChargeEnabled;
+            colorWindCharge       = d.colorWindCharge != 0 ? d.colorWindCharge : 0xFF00CCFF;
+            windChargesSizeMulti  = d.windChargesSizeMulti != 0 ? d.windChargesSizeMulti : 1.0f;
+            windChargeOutlineOnly = d.windChargeOutlineOnly;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -165,6 +200,19 @@ public class ModConfig {
         d.colorRangeIndicator  = colorRangeIndicator;
         d.selfReveal           = selfReveal;
         d.selfRevealPermanent  = selfRevealPermanent;
+        d.entityOnlyEnemy       = entityOnlyEnemy;
+        d.pearlEnabled          = pearlEnabled;
+        d.colorPearl            = colorPearl;
+        d.pearlSizeMulti        = pearlSizeMulti;
+        d.pearlOutlineOnly      = pearlOutlineOnly;
+        d.arrowEnabled          = arrowEnabled;
+        d.colorArrow            = colorArrow;
+        d.arrowSizeMulti        = arrowSizeMulti;
+        d.arrowOutlineOnly      = arrowOutlineOnly;
+        d.windChargeEnabled     = windChargeEnabled;
+        d.colorWindCharge       = colorWindCharge;
+        d.windChargesSizeMulti  = windChargesSizeMulti;
+        d.windChargeOutlineOnly = windChargeOutlineOnly;
         try (Writer w = new FileWriter(CONFIG_PATH.toFile())) {
             GSON.toJson(d, w);
         } catch (Exception e) {

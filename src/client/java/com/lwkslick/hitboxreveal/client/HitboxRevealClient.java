@@ -12,6 +12,9 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import org.lwjgl.glfw.GLFW;
+import net.minecraft.entity.projectile.ArrowEntity;
+import net.minecraft.entity.projectile.WindChargeEntity;
+import net.minecraft.entity.projectile.thrown.EnderPearlEntity;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -133,6 +136,22 @@ public class HitboxRevealClient implements ClientModInitializer {
 			// Range indicator (drawn once around local player's attack range)
 			if (ModConfig.rangeIndicator && client.player != null) {
 				HitboxRenderer.renderRangeCircle(context, client.player);
+			}
+
+			// Entity hitboxes
+			for (net.minecraft.entity.Entity entity : client.world.getEntities()) {
+				if (ModConfig.entityOnlyEnemy) {
+					if (!(entity instanceof net.minecraft.entity.projectile.ProjectileEntity proj)) continue;
+					if (proj.getOwner() == client.player) continue;
+				}
+
+				if (ModConfig.pearlEnabled && entity instanceof EnderPearlEntity) {
+					HitboxRenderer.renderEntityBox(context, entity, ModConfig.colorPearl, ModConfig.pearlSizeMulti, ModConfig.pearlOutlineOnly);
+				} else if (ModConfig.arrowEnabled && entity instanceof ArrowEntity) {
+					HitboxRenderer.renderEntityBox(context, entity, ModConfig.colorArrow, ModConfig.arrowSizeMulti, ModConfig.arrowOutlineOnly);
+				} else if (ModConfig.windChargeEnabled && entity instanceof WindChargeEntity) {
+					HitboxRenderer.renderEntityBox(context, entity, ModConfig.colorWindCharge, ModConfig.windChargesSizeMulti, ModConfig.windChargeOutlineOnly);
+				}
 			}
 		});
 
