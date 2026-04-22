@@ -96,8 +96,9 @@ public class ConfigScreen {
                                 .controller(opt -> FloatSliderControllerBuilder.create(opt).range(2.0f, 8.0f).step(0.5f))
                                 .build())
 
-                        .build())
+                        .option(LabelOption.create(Text.literal("§7Press §fN §7to open the Friends (ignore) list. Rebind in Controls.")))
 
+                        .build())
                 // ── Colors ──────────────────────────────────────────────────────
                 .category(ConfigCategory.createBuilder()
                         .name(Text.literal("Colors"))
@@ -239,8 +240,6 @@ public class ConfigScreen {
                                 .binding(false, () -> ModConfig.selfRevealPermanent, v -> ModConfig.selfRevealPermanent = v)
                                 .controller(TickBoxControllerBuilder::create)
                                 .build())
-
-                        .option(LabelOption.create(Text.literal("§7Press §fN §7to open the Friends (ignore) list. Rebind in Controls.")))
 
                         .build())
 
