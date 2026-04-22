@@ -63,6 +63,13 @@ public class ModConfig {
     public static float   windChargesSizeMulti = 1.0f;
     public static boolean windChargeOutlineOnly = false;
 
+    // Sound
+    public static boolean hitSound        = true;
+    public static float   hitSoundVolume  = 0.5f;
+
+    // Friends (ignore list)
+    public static java.util.List<String> friends = new java.util.ArrayList<>();
+
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final Path CONFIG_PATH =
             FabricLoader.getInstance().getConfigDir().resolve("hitboxreveal.json");
@@ -100,6 +107,9 @@ public class ModConfig {
         boolean pearlEnabled;        int colorPearl;        float pearlSizeMulti;        boolean pearlOutlineOnly;
         boolean arrowEnabled;        int colorArrow;        float arrowSizeMulti;        boolean arrowOutlineOnly;
         boolean windChargeEnabled;   int colorWindCharge;   float windChargesSizeMulti;  boolean windChargeOutlineOnly;
+        boolean hitSound;
+        float hitSoundVolume;
+        java.util.List<String> friends;
     }
 
     public static void load() {
@@ -157,6 +167,9 @@ public class ModConfig {
             colorWindCharge       = d.colorWindCharge != 0 ? d.colorWindCharge : 0xFF00CCFF;
             windChargesSizeMulti  = d.windChargesSizeMulti != 0 ? d.windChargesSizeMulti : 1.0f;
             windChargeOutlineOnly = d.windChargeOutlineOnly;
+            hitSound            = d.hitSound;
+            hitSoundVolume      = d.hitSoundVolume != 0 ? d.hitSoundVolume : 0.5f;
+            friends             = d.friends != null ? d.friends : new java.util.ArrayList<>();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -213,6 +226,9 @@ public class ModConfig {
         d.colorWindCharge       = colorWindCharge;
         d.windChargesSizeMulti  = windChargesSizeMulti;
         d.windChargeOutlineOnly = windChargeOutlineOnly;
+        d.hitSound              = hitSound;
+        d.hitSoundVolume        = hitSoundVolume;
+        d.friends               = friends;
         try (Writer w = new FileWriter(CONFIG_PATH.toFile())) {
             GSON.toJson(d, w);
         } catch (Exception e) {

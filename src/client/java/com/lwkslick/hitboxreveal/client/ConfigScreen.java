@@ -4,8 +4,9 @@ import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.*;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
-
+import net.minecraft.client.MinecraftClient;
 import java.awt.Color;
+import dev.isxander.yacl3.api.LabelOption;
 
 public class ConfigScreen {
 
@@ -328,6 +329,8 @@ public class ConfigScreen {
                                 .build())
 
                         .build())
+
+                .option(LabelOption.create(Text.literal("§7Press §fN §7to open the Friends (ignore) list. Rebind in Controls.")))
 
                 .build()
                 .generateScreen(parent);

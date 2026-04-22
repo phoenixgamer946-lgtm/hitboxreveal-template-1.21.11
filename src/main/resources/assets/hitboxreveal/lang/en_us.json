@@ -1,5 +1,6 @@
 {
   "key.hitboxreveal.toggle": "HitboxReveal: Toggle",
   "key.hitboxreveal.config": "HitboxReveal: Config",
-  "key.categories.hitboxreveal.keycategory": "HitboxReveal"
+  "key.categories.hitboxreveal.keycategory": "HitboxReveal",
+  "key.hitboxreveal.friends": "HitboxReveal: Friends List"
 }

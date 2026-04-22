@@ -15,7 +15,6 @@ import org.lwjgl.glfw.GLFW;
 import net.minecraft.entity.projectile.ArrowEntity;
 import net.minecraft.entity.projectile.WindChargeEntity;
 import net.minecraft.entity.projectile.thrown.EnderPearlEntity;
-
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -27,6 +26,7 @@ public class HitboxRevealClient implements ClientModInitializer {
 
 	private static KeyBinding toggleKey;
 	private static KeyBinding configKey;
+	private static KeyBinding friendsKey;
 
 	@Override
 	public void onInitializeClient() {
@@ -39,12 +39,18 @@ public class HitboxRevealClient implements ClientModInitializer {
 		configKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
 				"key.hitboxreveal.config", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_B, hitboxCategory
 		));
+		friendsKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+				"key.hitboxreveal.friends", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_N, hitboxCategory
+		));
 
 		AttackEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
 			if (!(world instanceof net.minecraft.client.world.ClientWorld)) return ActionResult.PASS;
 			if (!ModConfig.enabled) return ActionResult.PASS;
 			if (entity instanceof PlayerEntity target) {
+				// Friends check — skip if on ignore list
+				if (ModConfig.friends.contains(target.getName().getString())) return ActionResult.PASS;
 				revealedPlayers.put(target.getUuid(), ModConfig.revealTicks);
+
 				// Self-reveal on-hit
 				if (ModConfig.selfReveal && !ModConfig.selfRevealPermanent) {
 					revealedPlayers.put(player.getUuid(), ModConfig.revealTicks);
@@ -65,6 +71,12 @@ public class HitboxRevealClient implements ClientModInitializer {
 			while (configKey.wasPressed()) {
 				if (client.currentScreen == null) {
 					client.setScreen(ConfigScreen.create(null));
+				}
+			}
+
+			while (friendsKey.wasPressed()) {
+				if (client.currentScreen == null) {
+					client.setScreen(new FriendsScreen(null));
 				}
 			}
 
