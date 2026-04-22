@@ -44,6 +44,13 @@ public class HitboxRenderer {
         Vec3d offset = lerpedPos.subtract(entityPos);
         Box box = target.getBoundingBox().offset(offset).offset(-cam.x, -cam.y, -cam.z);
 
+        double dist = Math.sqrt(
+                (box.minX + box.maxX) * 0.5 * (box.minX + box.maxX) * 0.5 +
+                        (box.minY + box.maxY) * 0.5 * (box.minY + box.maxY) * 0.5 +
+                        (box.minZ + box.maxZ) * 0.5 * (box.minZ + box.maxZ) * 0.5
+        );
+        float scaledLw = (float) Math.max(1.0f, ModConfig.lineWidth / (float)(dist * 0.3));
+
         float r  = ((argbColor >> 16) & 0xFF) / 255f;
         float g  = ((argbColor >> 8)  & 0xFF) / 255f;
         float b  = ((argbColor)       & 0xFF) / 255f;
@@ -83,7 +90,7 @@ public class HitboxRenderer {
         if (ModConfig.outline) {
             Matrix4f mat = matrices.peek().getPositionMatrix();
             VertexConsumer buf = consumers.getBuffer(RenderLayers.LINES);
-            float lw = ModConfig.lineWidth;
+            float lw = scaledLw;
             drawEdges(buf, mat,
                     (float)box.minX, (float)box.minY, (float)box.minZ,
                     (float)box.maxX, (float)box.maxY, (float)box.maxZ,
@@ -101,7 +108,7 @@ public class HitboxRenderer {
                     box.maxX + expand, eyeY + 0.01, box.maxZ + expand);
             Matrix4f mat = matrices.peek().getPositionMatrix();
             VertexConsumer buf = consumers.getBuffer(RenderLayers.LINES);
-            float lw = ModConfig.lineWidth;
+            float lw = scaledLw;
             drawEdges(buf, mat,
                     (float)eyeBox.minX, (float)eyeBox.minY, (float)eyeBox.minZ,
                     (float)eyeBox.maxX, (float)eyeBox.maxY, (float)eyeBox.maxZ,
