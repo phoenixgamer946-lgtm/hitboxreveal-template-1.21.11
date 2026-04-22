@@ -76,7 +76,7 @@ public class HitboxRevealClient implements ClientModInitializer {
 
 			while (friendsKey.wasPressed()) {
 				if (client.currentScreen == null) {
-					client.setScreen(new FriendsScreen(null));
+					client.setScreen(FriendsScreen.create(null));
 				}
 			}
 

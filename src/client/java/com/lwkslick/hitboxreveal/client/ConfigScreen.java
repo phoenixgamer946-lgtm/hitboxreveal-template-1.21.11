@@ -96,7 +96,12 @@ public class ConfigScreen {
                                 .controller(opt -> FloatSliderControllerBuilder.create(opt).range(2.0f, 8.0f).step(0.5f))
                                 .build())
 
-                        .option(LabelOption.create(Text.literal("§7Press §fN §7to open the Friends (ignore) list. Rebind in Controls.")))
+                        .option(ButtonOption.createBuilder()
+                                .name(Text.literal("Friends (Ignore List)"))
+                                .description(OptionDescription.of(Text.literal("Players in this list will never have their hitbox revealed.")))
+                                .text(Text.literal("Open"))
+                                .action((screen, opt) -> MinecraftClient.getInstance().setScreen(FriendsScreen.create(screen)))
+                                .build())
 
                         .build())
                 // ── Colors ──────────────────────────────────────────────────────
