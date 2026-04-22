@@ -240,6 +240,8 @@ public class ConfigScreen {
                                 .controller(TickBoxControllerBuilder::create)
                                 .build())
 
+                        .option(LabelOption.create(Text.literal("§7Press §fN §7to open the Friends (ignore) list. Rebind in Controls.")))
+
                         .build())
 
                 // ── Entities ─────────────────────────────────────────────────────
@@ -329,8 +331,6 @@ public class ConfigScreen {
                                 .build())
 
                         .build())
-
-                .option(LabelOption.create(Text.literal("§7Press §fN §7to open the Friends (ignore) list. Rebind in Controls.")))
 
                 .build()
                 .generateScreen(parent);
