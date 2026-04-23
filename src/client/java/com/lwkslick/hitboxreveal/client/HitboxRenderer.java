@@ -141,9 +141,9 @@ public class HitboxRenderer {
         // Velocity vector
         if (ModConfig.velocityVector) {
             Vec3d vel = target.getVelocity();
-            if (vel.horizontalLengthSquared() > 0.0001 || vel.y * vel.y > 0.0001) {
+            if (vel.horizontalLengthSquared() > 0.0001) {
                 Vec3d feet = lerpedPos.add(0, 0.05, 0).subtract(cam);
-                Vec3d scaled = vel.multiply(ModConfig.velocityVectorScale * 20.0);
+                Vec3d scaled = new Vec3d(vel.x, 0, vel.z).multiply(ModConfig.velocityVectorScale * 20.0);
                 Vec3d tip = feet.add(scaled);
                 VertexConsumer buf = consumers.getBuffer(RenderLayers.LINES);
                 float vr = ((ModConfig.colorVelocityVector >> 16) & 0xFF) / 255f;
