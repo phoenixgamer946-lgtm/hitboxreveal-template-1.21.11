@@ -247,7 +247,6 @@ public class ModConfig {
         d.soloAutoLinger               = soloAutoLinger;
         d.soloAutoActionBar            = soloAutoActionBar;
         d.soloAutoRangeIndicatorPulse  = soloAutoRangeIndicatorPulse;
-
         try (Writer w = new FileWriter(CONFIG_PATH.toFile())) {
             GSON.toJson(d, w);
         } catch (Exception e) {
