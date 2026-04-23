@@ -24,6 +24,9 @@ public class HitboxRevealClient implements ClientModInitializer {
 
 	public static final Map<UUID, Integer> revealedPlayers = new HashMap<>();
 
+	private static UUID   soloAutoTarget   = null;
+	private static int    soloAutoLingerTimer = 0;
+
 	private static KeyBinding toggleKey;
 	private static KeyBinding configKey;
 	private static KeyBinding friendsKey;
@@ -77,6 +80,42 @@ public class HitboxRevealClient implements ClientModInitializer {
 			while (friendsKey.wasPressed()) {
 				if (client.currentScreen == null) {
 					client.setScreen(FriendsScreen.create(null));
+				}
+			}
+
+			// ── Solo auto-reveal ──────────────────────────────────────────
+			if (ModConfig.soloAutoReveal && ModConfig.enabled && client.world != null && client.player != null) {
+				java.util.List<PlayerEntity> nearby = new java.util.ArrayList<>();
+				for (PlayerEntity p : client.world.getPlayers()) {
+					if (p == client.player) continue;
+					if (ModConfig.friends.contains(p.getName().getString())) continue;
+					if (client.player.distanceTo(p) <= ModConfig.soloAutoRange) nearby.add(p);
+				}
+
+				if (nearby.size() == 1) {
+					UUID id = nearby.get(0).getUuid();
+					if (!id.equals(soloAutoTarget)) {
+						// New solo target
+						soloAutoTarget = id;
+						if (ModConfig.soloAutoActionBar && client.player != null)
+							client.player.sendMessage(Text.literal("§eSolo mode: §aON"), true);
+					}
+					soloAutoLingerTimer = ModConfig.soloAutoLinger;
+					revealedPlayers.put(id, Integer.MAX_VALUE);
+				} else {
+					if (soloAutoTarget != null) {
+						if (soloAutoLingerTimer > 0) {
+							// Still in grace/linger period — keep the hitbox alive
+							soloAutoLingerTimer--;
+							revealedPlayers.put(soloAutoTarget, Integer.MAX_VALUE);
+						} else {
+							// Linger expired — remove solo reveal
+							revealedPlayers.remove(soloAutoTarget);
+							if (ModConfig.soloAutoActionBar && client.player != null)
+								client.player.sendMessage(Text.literal("§eSolo mode: §cLOST"), true);
+							soloAutoTarget = null;
+						}
+					}
 				}
 			}
 
@@ -147,7 +186,11 @@ public class HitboxRevealClient implements ClientModInitializer {
 
 			// Range indicator (drawn once around local player's attack range)
 			if (ModConfig.rangeIndicator && client.player != null) {
-				HitboxRenderer.renderRangeCircle(context, client.player);
+				float pulseAlpha = 1.0f;
+				if (ModConfig.soloAutoReveal && ModConfig.soloAutoRangeIndicatorPulse && soloAutoTarget != null) {
+					pulseAlpha = 0.5f + 0.5f * (float) Math.sin(System.currentTimeMillis() / 300.0 * Math.PI * 2);
+				}
+				HitboxRenderer.renderRangeCircle(context, client.player, pulseAlpha);
 			}
 
 			// Entity hitboxes

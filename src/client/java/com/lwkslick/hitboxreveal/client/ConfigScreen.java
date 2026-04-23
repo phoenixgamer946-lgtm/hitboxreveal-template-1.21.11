@@ -104,6 +104,48 @@ public class ConfigScreen {
                                 .build())
 
                         .build())
+
+                // ── Solo Auto-Reveal ─────────────────────────────────────────────
+                .category(ConfigCategory.createBuilder()
+                        .name(Text.literal("Solo Auto-Reveal"))
+
+                        .option(Option.<Boolean>createBuilder()
+                                .name(Text.literal("Enabled"))
+                                .description(OptionDescription.of(Text.literal("Automatically reveal the only nearby enemy player's hitbox without needing to hit them. Deactivates if more than one enemy is in range.")))
+                                .binding(false, () -> ModConfig.soloAutoReveal, v -> ModConfig.soloAutoReveal = v)
+                                .controller(TickBoxControllerBuilder::create)
+                                .build())
+
+                        .option(Option.<Float>createBuilder()
+                                .name(Text.literal("Detection range"))
+                                .description(OptionDescription.of(Text.literal("Radius in blocks to scan for nearby players.")))
+                                .binding(20.0f, () -> ModConfig.soloAutoRange, v -> ModConfig.soloAutoRange = v)
+                                .controller(opt -> FloatSliderControllerBuilder.create(opt).range(5.0f, 300.0f).step(5.0f).valueFormatter(f -> Text.literal(String.format("%.0f blocks", f))))
+                                .build())
+
+                        .option(Option.<Integer>createBuilder()
+                                .name(Text.literal("Linger ticks"))
+                                .description(OptionDescription.of(Text.literal("How many ticks the hitbox stays on after the solo condition is lost (e.g. a 3rd player enters range). 20 = 1 second.")))
+                                .binding(40, () -> ModConfig.soloAutoLinger, v -> ModConfig.soloAutoLinger = v)
+                                .controller(opt -> IntegerSliderControllerBuilder.create(opt).range(0, 200).step(10))
+                                .build())
+
+                        .option(Option.<Boolean>createBuilder()
+                                .name(Text.literal("Action bar messages"))
+                                .description(OptionDescription.of(Text.literal("Show 'Solo mode: ON/LOST' in the action bar when solo auto-reveal activates or deactivates.")))
+                                .binding(true, () -> ModConfig.soloAutoActionBar, v -> ModConfig.soloAutoActionBar = v)
+                                .controller(TickBoxControllerBuilder::create)
+                                .build())
+
+                        .option(Option.<Boolean>createBuilder()
+                                .name(Text.literal("Pulse range indicator"))
+                                .description(OptionDescription.of(Text.literal("Pulse the range indicator circle while solo auto-reveal is active. Requires Range Indicator to be enabled.")))
+                                .binding(true, () -> ModConfig.soloAutoRangeIndicatorPulse, v -> ModConfig.soloAutoRangeIndicatorPulse = v)
+                                .controller(TickBoxControllerBuilder::create)
+                                .build())
+
+                        .build())
+
                 // ── Colors ──────────────────────────────────────────────────────
                 .category(ConfigCategory.createBuilder()
                         .name(Text.literal("Colors"))

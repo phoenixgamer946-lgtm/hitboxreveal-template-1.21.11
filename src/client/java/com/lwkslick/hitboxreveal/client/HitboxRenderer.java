@@ -141,7 +141,7 @@ public class HitboxRenderer {
         matrices.pop();
     }
 
-    public static void renderRangeCircle(WorldRenderContext context, PlayerEntity player) {
+    public static void renderRangeCircle(WorldRenderContext context, PlayerEntity player, float alpha) {
         VertexConsumerProvider consumers = context.consumers();
         if (consumers == null) return;
 
@@ -171,7 +171,7 @@ public class HitboxRenderer {
             float z1 = (float)(pos.z + Math.sin(a1) * radius);
             float x2 = (float)(pos.x + Math.cos(a2) * radius);
             float z2 = (float)(pos.z + Math.sin(a2) * radius);
-            drawLine(buf, mat, x1, y, z1, x2, y, z2, r, g, b, 1.0f, 1.0f);
+            drawLine(buf, mat, x1, y, z1, x2, y, z2, r, g, b, alpha, 1.0f);
         }
 
         matrices.pop();

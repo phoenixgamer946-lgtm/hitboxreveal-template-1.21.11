@@ -44,31 +44,31 @@ public class ModConfig {
     public static int     colorRangeIndicator = 0xFF00FFFF;
     public static boolean selfReveal        = false;
     public static boolean selfRevealPermanent = false;
-
     // Entities tab
     public static boolean entityOnlyEnemy     = true;
-
     public static boolean pearlEnabled        = true;
     public static int     colorPearl          = 0xFF00FF00;
     public static float   pearlSizeMulti      = 1.0f;
     public static boolean pearlOutlineOnly    = false;
-
     public static boolean arrowEnabled        = true;
     public static int     colorArrow          = 0xFFFF0000;
     public static float   arrowSizeMulti      = 1.0f;
     public static boolean arrowOutlineOnly    = false;
-
     public static boolean windChargeEnabled   = true;
     public static int     colorWindCharge     = 0xFF00CCFF;
     public static float   windChargesSizeMulti = 1.0f;
     public static boolean windChargeOutlineOnly = false;
-
     // Sound
     public static boolean hitSound        = true;
     public static float   hitSoundVolume  = 0.5f;
-
     // Friends (ignore list)
     public static java.util.List<String> friends = new java.util.ArrayList<>();
+    public static boolean soloAutoReveal        = false;
+    public static float   soloAutoRange         = 150.0f;
+    public static boolean soloAutoGracePulse    = true;
+    public static int     soloAutoLinger        = 40;
+    public static boolean soloAutoActionBar     = true;
+    public static boolean soloAutoRangeIndicatorPulse = true;
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final Path CONFIG_PATH =
@@ -110,6 +110,12 @@ public class ModConfig {
         boolean hitSound;
         float hitSoundVolume;
         java.util.List<String> friends;
+        boolean soloAutoReveal;
+        float   soloAutoRange;
+        boolean soloAutoGracePulse;
+        int     soloAutoLinger;
+        boolean soloAutoActionBar;
+        boolean soloAutoRangeIndicatorPulse;
     }
 
     public static void load() {
@@ -170,6 +176,12 @@ public class ModConfig {
             hitSound            = d.hitSound;
             hitSoundVolume      = d.hitSoundVolume != 0 ? d.hitSoundVolume : 0.5f;
             friends             = d.friends != null ? d.friends : new java.util.ArrayList<>();
+            soloAutoReveal               = d.soloAutoReveal;
+            soloAutoRange                = d.soloAutoRange != 0 ? d.soloAutoRange : 150.0f;
+            soloAutoGracePulse           = d.soloAutoGracePulse;
+            soloAutoLinger               = d.soloAutoLinger != 0 ? d.soloAutoLinger : 40;
+            soloAutoActionBar            = d.soloAutoActionBar;
+            soloAutoRangeIndicatorPulse  = d.soloAutoRangeIndicatorPulse;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -229,6 +241,12 @@ public class ModConfig {
         d.hitSound              = hitSound;
         d.hitSoundVolume        = hitSoundVolume;
         d.friends               = friends;
+        d.soloAutoReveal               = soloAutoReveal;
+        d.soloAutoRange                = soloAutoRange;
+        d.soloAutoGracePulse           = soloAutoGracePulse;
+        d.soloAutoLinger               = soloAutoLinger;
+        d.soloAutoActionBar            = soloAutoActionBar;
+        d.soloAutoRangeIndicatorPulse  = soloAutoRangeIndicatorPulse;
         try (Writer w = new FileWriter(CONFIG_PATH.toFile())) {
             GSON.toJson(d, w);
         } catch (Exception e) {
