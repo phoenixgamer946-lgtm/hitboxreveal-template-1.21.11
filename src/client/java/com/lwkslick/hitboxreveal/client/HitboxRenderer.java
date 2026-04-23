@@ -138,6 +138,41 @@ public class HitboxRenderer {
             }
         }
 
+        // Velocity vector
+        if (ModConfig.velocityVector) {
+            Vec3d vel = target.getVelocity();
+            if (vel.horizontalLengthSquared() > 0.0001 || vel.y * vel.y > 0.0001) {
+                Vec3d feet = lerpedPos.add(0, 0.05, 0).subtract(cam);
+                Vec3d scaled = vel.multiply(ModConfig.velocityVectorScale * 20.0);
+                Vec3d tip = feet.add(scaled);
+                VertexConsumer buf = consumers.getBuffer(RenderLayers.LINES);
+                float vr = ((ModConfig.colorVelocityVector >> 16) & 0xFF) / 255f;
+                float vg = ((ModConfig.colorVelocityVector >> 8)  & 0xFF) / 255f;
+                float vb = ((ModConfig.colorVelocityVector)       & 0xFF) / 255f;
+                float lw = ModConfig.velocityVectorWidth;
+                drawLine(buf, mat,
+                        (float)feet.x, (float)feet.y, (float)feet.z,
+                        (float)tip.x,  (float)tip.y,  (float)tip.z,
+                        vr, vg, vb, alpha, lw);
+                // Arrowhead fins
+                Vec3d dir = scaled.normalize();
+                Quaternionf rot = new Quaternionf().rotationTo(new Vector3f(1,0,0), dir.toVector3f());
+                float size = 0.2f;
+                Vector3f[] fins = {
+                        rot.transform(new Vector3f(-size,  size, 0)),
+                        rot.transform(new Vector3f(-size, 0,  size)),
+                        rot.transform(new Vector3f(-size, -size, 0)),
+                        rot.transform(new Vector3f(-size, 0, -size))
+                };
+                for (Vector3f fin : fins) {
+                    drawLine(buf, mat,
+                            (float)tip.x + fin.x, (float)tip.y + fin.y, (float)tip.z + fin.z,
+                            (float)tip.x, (float)tip.y, (float)tip.z,
+                            vr, vg, vb, alpha, lw);
+                }
+            }
+        }
+
         matrices.pop();
     }
 

@@ -69,6 +69,10 @@ public class ModConfig {
     public static int     soloAutoLinger        = 40;
     public static boolean soloAutoActionBar     = true;
     public static boolean soloAutoRangeIndicatorPulse = true;
+    public static boolean velocityVector       = false;
+    public static float   velocityVectorScale  = 3.0f;
+    public static float   velocityVectorWidth  = 2.0f;
+    public static int     colorVelocityVector  = 0xFF00FFFF;
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final Path CONFIG_PATH =
@@ -116,6 +120,10 @@ public class ModConfig {
         int     soloAutoLinger;
         boolean soloAutoActionBar;
         boolean soloAutoRangeIndicatorPulse;
+        boolean velocityVector;
+        float   velocityVectorScale;
+        float   velocityVectorWidth;
+        int     colorVelocityVector;
     }
 
     public static void load() {
@@ -182,6 +190,10 @@ public class ModConfig {
             soloAutoLinger               = d.soloAutoLinger != 0 ? d.soloAutoLinger : 40;
             soloAutoActionBar            = d.soloAutoActionBar;
             soloAutoRangeIndicatorPulse  = d.soloAutoRangeIndicatorPulse;
+            velocityVector      = d.velocityVector;
+            velocityVectorScale = d.velocityVectorScale != 0 ? d.velocityVectorScale : 3.0f;
+            velocityVectorWidth = d.velocityVectorWidth != 0 ? d.velocityVectorWidth : 2.0f;
+            colorVelocityVector = d.colorVelocityVector != 0 ? d.colorVelocityVector : 0xFF00FFFF;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -247,6 +259,10 @@ public class ModConfig {
         d.soloAutoLinger               = soloAutoLinger;
         d.soloAutoActionBar            = soloAutoActionBar;
         d.soloAutoRangeIndicatorPulse  = soloAutoRangeIndicatorPulse;
+        d.velocityVector      = velocityVector;
+        d.velocityVectorScale = velocityVectorScale;
+        d.velocityVectorWidth = velocityVectorWidth;
+        d.colorVelocityVector = colorVelocityVector;
         try (Writer w = new FileWriter(CONFIG_PATH.toFile())) {
             GSON.toJson(d, w);
         } catch (Exception e) {
