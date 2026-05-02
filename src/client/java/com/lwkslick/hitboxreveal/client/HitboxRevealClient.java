@@ -15,6 +15,8 @@ import org.lwjgl.glfw.GLFW;
 import net.minecraft.entity.projectile.ArrowEntity;
 import net.minecraft.entity.projectile.WindChargeEntity;
 import net.minecraft.entity.projectile.thrown.EnderPearlEntity;
+import net.minecraft.entity.vehicle.TntMinecartEntity;
+import net.minecraft.entity.projectile.FireballEntity;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -196,8 +198,11 @@ public class HitboxRevealClient implements ClientModInitializer {
 			// Entity hitboxes
 			for (net.minecraft.entity.Entity entity : client.world.getEntities()) {
 				if (ModConfig.entityOnlyEnemy) {
-					if (!(entity instanceof net.minecraft.entity.projectile.ProjectileEntity proj)) continue;
-					if (proj.getOwner() == client.player) continue;
+					boolean isTntCart = entity instanceof TntMinecartEntity;
+					if (!isTntCart) {
+						if (!(entity instanceof net.minecraft.entity.projectile.ProjectileEntity proj)) continue;
+						if (proj.getOwner() == client.player) continue;
+					}
 				}
 
 				if (ModConfig.pearlEnabled && entity instanceof EnderPearlEntity) {
@@ -206,6 +211,10 @@ public class HitboxRevealClient implements ClientModInitializer {
 					HitboxRenderer.renderEntityBox(context, entity, ModConfig.colorArrow, ModConfig.arrowSizeMulti, ModConfig.arrowOutlineOnly);
 				} else if (ModConfig.windChargeEnabled && entity instanceof WindChargeEntity) {
 					HitboxRenderer.renderEntityBox(context, entity, ModConfig.colorWindCharge, ModConfig.windChargesSizeMulti, ModConfig.windChargeOutlineOnly);
+				} else if (ModConfig.tntMinecartEnabled && entity instanceof TntMinecartEntity) {
+					HitboxRenderer.renderEntityBox(context, entity, ModConfig.colorTntMinecart, ModConfig.tntMinecartSizeMulti, ModConfig.tntMinecartOutlineOnly);
+				} else if (ModConfig.fireballEnabled && entity instanceof FireballEntity) {
+					HitboxRenderer.renderEntityBox(context, entity, ModConfig.colorFireball, ModConfig.fireballSizeMulti, ModConfig.fireballOutlineOnly);
 				}
 			}
 		});

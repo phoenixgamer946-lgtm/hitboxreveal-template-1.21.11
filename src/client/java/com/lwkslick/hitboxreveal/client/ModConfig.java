@@ -58,6 +58,15 @@ public class ModConfig {
     public static int     colorWindCharge     = 0xFF00CCFF;
     public static float   windChargesSizeMulti = 1.0f;
     public static boolean windChargeOutlineOnly = false;
+    public static boolean tntMinecartEnabled    = true;
+    public static int     colorTntMinecart      = 0xFFFF6600;
+    public static float   tntMinecartSizeMulti  = 1.0f;
+    public static boolean tntMinecartOutlineOnly = false;
+    public static boolean fireballEnabled       = true;
+    public static int     colorFireball         = 0xFFFF4400;
+    public static float   fireballSizeMulti     = 1.0f;
+    public static boolean fireballOutlineOnly   = false;
+    public static boolean gradientFlip          = false;
     // Sound
     public static boolean hitSound        = true;
     public static float   hitSoundVolume  = 0.5f;
@@ -107,6 +116,9 @@ public class ModConfig {
         boolean pearlEnabled;        int colorPearl;        float pearlSizeMulti;        boolean pearlOutlineOnly;
         boolean arrowEnabled;        int colorArrow;        float arrowSizeMulti;        boolean arrowOutlineOnly;
         boolean windChargeEnabled;   int colorWindCharge;   float windChargesSizeMulti;  boolean windChargeOutlineOnly;
+        boolean tntMinecartEnabled;  int colorTntMinecart;  float tntMinecartSizeMulti;  boolean tntMinecartOutlineOnly;
+        boolean fireballEnabled;     int colorFireball;     float fireballSizeMulti;     boolean fireballOutlineOnly;
+        boolean gradientFlip;
         boolean hitSound;
         float hitSoundVolume;
         java.util.List<String> friends;
@@ -173,6 +185,15 @@ public class ModConfig {
             colorWindCharge       = d.colorWindCharge != 0 ? d.colorWindCharge : 0xFF00CCFF;
             windChargesSizeMulti  = d.windChargesSizeMulti != 0 ? d.windChargesSizeMulti : 1.0f;
             windChargeOutlineOnly = d.windChargeOutlineOnly;
+            tntMinecartEnabled    = d.tntMinecartEnabled;
+            colorTntMinecart      = d.colorTntMinecart != 0 ? d.colorTntMinecart : 0xFFFF6600;
+            tntMinecartSizeMulti  = d.tntMinecartSizeMulti != 0 ? d.tntMinecartSizeMulti : 1.0f;
+            tntMinecartOutlineOnly = d.tntMinecartOutlineOnly;
+            fireballEnabled       = d.fireballEnabled;
+            colorFireball         = d.colorFireball != 0 ? d.colorFireball : 0xFFFF4400;
+            fireballSizeMulti     = d.fireballSizeMulti != 0 ? d.fireballSizeMulti : 1.0f;
+            fireballOutlineOnly   = d.fireballOutlineOnly;
+            gradientFlip          = d.gradientFlip;
             hitSound            = d.hitSound;
             hitSoundVolume      = d.hitSoundVolume != 0 ? d.hitSoundVolume : 0.5f;
             friends             = d.friends != null ? d.friends : new java.util.ArrayList<>();
@@ -238,6 +259,15 @@ public class ModConfig {
         d.colorWindCharge       = colorWindCharge;
         d.windChargesSizeMulti  = windChargesSizeMulti;
         d.windChargeOutlineOnly = windChargeOutlineOnly;
+        d.tntMinecartEnabled    = tntMinecartEnabled;
+        d.colorTntMinecart      = colorTntMinecart;
+        d.tntMinecartSizeMulti  = tntMinecartSizeMulti;
+        d.tntMinecartOutlineOnly = tntMinecartOutlineOnly;
+        d.fireballEnabled       = fireballEnabled;
+        d.colorFireball         = colorFireball;
+        d.fireballSizeMulti     = fireballSizeMulti;
+        d.fireballOutlineOnly   = fireballOutlineOnly;
+        d.gradientFlip          = gradientFlip;
         d.hitSound              = hitSound;
         d.hitSoundVolume        = hitSoundVolume;
         d.friends               = friends;

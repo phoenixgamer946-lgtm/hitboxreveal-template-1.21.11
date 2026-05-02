@@ -49,17 +49,21 @@ public class HitboxRenderer {
         );
         float scaledLw = Math.max(1.0f, ModConfig.lineWidth / (float)(dist * 0.3));
 
-        float r = ((argbColor >> 16) & 0xFF) / 255f;
-        float g = ((argbColor >> 8)  & 0xFF) / 255f;
-        float b = ((argbColor)       & 0xFF) / 255f;
         float fa = ModConfig.fillOpacity * alpha;
 
         int topArgb = ModConfig.gradientEnabled
                 ? (ModConfig.perStateGradient ? resolveGradientTop(argbColor) : ModConfig.colorGradientTop)
                 : argbColor;
-        float r2 = ((topArgb >> 16) & 0xFF) / 255f;
-        float g2 = ((topArgb >> 8)  & 0xFF) / 255f;
-        float b2 = ((topArgb)       & 0xFF) / 255f;
+        // gradientFlip: swap which end gets the "top" color
+        int bottomArgbRaw = argbColor;
+        int topArgbRaw    = topArgb;
+        if (ModConfig.gradientFlip) { int tmp = topArgbRaw; topArgbRaw = bottomArgbRaw; bottomArgbRaw = tmp; }
+        float r  = ((bottomArgbRaw >> 16) & 0xFF) / 255f;
+        float g  = ((bottomArgbRaw >> 8)  & 0xFF) / 255f;
+        float b  = ((bottomArgbRaw)       & 0xFF) / 255f;
+        float r2 = ((topArgbRaw >> 16) & 0xFF) / 255f;
+        float g2 = ((topArgbRaw >> 8)  & 0xFF) / 255f;
+        float b2 = ((topArgbRaw)       & 0xFF) / 255f;
 
         matrices.push();
         Matrix4f mat = matrices.peek().getPositionMatrix();
