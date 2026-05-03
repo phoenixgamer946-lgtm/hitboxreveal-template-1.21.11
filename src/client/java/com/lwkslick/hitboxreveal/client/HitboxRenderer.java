@@ -40,7 +40,27 @@ public class HitboxRenderer {
         Vec3d lerpedPos = target.getLerpedPos(tickProgress);
         Vec3d entityPos = target.getEntityPos();
         Vec3d offset = lerpedPos.subtract(entityPos);
-        Box box = target.getBoundingBox().offset(offset).offset(-cam.x, -cam.y, -cam.z);
+        Box rawBox = target.getBoundingBox().offset(offset).offset(-cam.x, -cam.y, -cam.z);
+        Box box;
+        if (ModConfig.playerSizePreset == 1) { // Minimum
+            double cx2 = (rawBox.minX + rawBox.maxX) / 2.0;
+            double cy2 = (rawBox.minY + rawBox.maxY) / 2.0;
+            double cz2 = (rawBox.minZ + rawBox.maxZ) / 2.0;
+            double hw2 = (rawBox.maxX - rawBox.minX) / 2.0 * ModConfig.playerSizeMin;
+            double hh2 = (rawBox.maxY - rawBox.minY) / 2.0 * ModConfig.playerSizeMin;
+            double hd2 = (rawBox.maxZ - rawBox.minZ) / 2.0 * ModConfig.playerSizeMin;
+            box = new Box(cx2 - hw2, cy2 - hh2, cz2 - hd2, cx2 + hw2, cy2 + hh2, cz2 + hd2);
+        } else if (ModConfig.playerSizePreset == 2) { // Maximum
+            double cx2 = (rawBox.minX + rawBox.maxX) / 2.0;
+            double cy2 = (rawBox.minY + rawBox.maxY) / 2.0;
+            double cz2 = (rawBox.minZ + rawBox.maxZ) / 2.0;
+            double hw2 = (rawBox.maxX - rawBox.minX) / 2.0 * ModConfig.playerSizeMax;
+            double hh2 = (rawBox.maxY - rawBox.minY) / 2.0 * ModConfig.playerSizeMax;
+            double hd2 = (rawBox.maxZ - rawBox.minZ) / 2.0 * ModConfig.playerSizeMax;
+            box = new Box(cx2 - hw2, cy2 - hh2, cz2 - hd2, cx2 + hw2, cy2 + hh2, cz2 + hd2);
+        } else {
+            box = rawBox;
+        }
 
         double dist = Math.sqrt(
                 (box.minX + box.maxX) * 0.5 * (box.minX + box.maxX) * 0.5 +

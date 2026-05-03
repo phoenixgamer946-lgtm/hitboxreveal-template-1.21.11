@@ -17,17 +17,22 @@ import net.minecraft.entity.projectile.WindChargeEntity;
 import net.minecraft.entity.projectile.thrown.EnderPearlEntity;
 import net.minecraft.entity.vehicle.TntMinecartEntity;
 import net.minecraft.entity.projectile.FireballEntity;
+import net.minecraft.entity.vehicle.BoatEntity;
+import net.minecraft.entity.vehicle.ChestBoatEntity;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public class HitboxRevealClient implements ClientModInitializer {
 
 	public static final Map<UUID, Integer> revealedPlayers = new HashMap<>();
 
-	private static UUID   soloAutoTarget   = null;
-	private static int    soloAutoLingerTimer = 0;
+	// Tracks all UUIDs currently being auto-revealed by solo auto-reveal
+	public static final Set<UUID> soloAutoTargets = new HashSet<>();
+	private static int soloAutoLingerTimer = 0;
 
 	private static KeyBinding toggleKey;
 	private static KeyBinding configKey;
@@ -52,11 +57,8 @@ public class HitboxRevealClient implements ClientModInitializer {
 			if (!(world instanceof net.minecraft.client.world.ClientWorld)) return ActionResult.PASS;
 			if (!ModConfig.enabled) return ActionResult.PASS;
 			if (entity instanceof PlayerEntity target) {
-				// Friends check — skip if on ignore list
 				if (ModConfig.friends.contains(target.getName().getString())) return ActionResult.PASS;
 				revealedPlayers.put(target.getUuid(), ModConfig.revealTicks);
-
-				// Self-reveal on-hit
 				if (ModConfig.selfReveal && !ModConfig.selfRevealPermanent) {
 					revealedPlayers.put(player.getUuid(), ModConfig.revealTicks);
 				}
@@ -78,7 +80,6 @@ public class HitboxRevealClient implements ClientModInitializer {
 					client.setScreen(ConfigScreen.create(null));
 				}
 			}
-
 			while (friendsKey.wasPressed()) {
 				if (client.currentScreen == null) {
 					client.setScreen(FriendsScreen.create(null));
@@ -94,28 +95,28 @@ public class HitboxRevealClient implements ClientModInitializer {
 					if (client.player.distanceTo(p) <= ModConfig.soloAutoRange) nearby.add(p);
 				}
 
-				if (nearby.size() == 1) {
-					UUID id = nearby.get(0).getUuid();
-					if (!id.equals(soloAutoTarget)) {
-						// New solo target
-						soloAutoTarget = id;
+				if (nearby.size() >= 1 && nearby.size() <= ModConfig.soloAutoMaxPlayers) {
+					Set<UUID> newTargets = new HashSet<>();
+					for (PlayerEntity p : nearby) newTargets.add(p.getUuid());
+
+					if (!newTargets.equals(soloAutoTargets)) {
+						soloAutoTargets.clear();
+						soloAutoTargets.addAll(newTargets);
 						if (ModConfig.soloAutoActionBar && client.player != null)
-							client.player.sendMessage(Text.literal("§eSolo mode: §aON"), true);
+							client.player.sendMessage(Text.literal("§eSolo mode: §aON (" + nearby.size() + ")"), true);
 					}
 					soloAutoLingerTimer = ModConfig.soloAutoLinger;
-					revealedPlayers.put(id, Integer.MAX_VALUE);
+					for (UUID id : soloAutoTargets) revealedPlayers.put(id, Integer.MAX_VALUE);
 				} else {
-					if (soloAutoTarget != null) {
+					if (!soloAutoTargets.isEmpty()) {
 						if (soloAutoLingerTimer > 0) {
-							// Still in grace/linger period — keep the hitbox alive
 							soloAutoLingerTimer--;
-							revealedPlayers.put(soloAutoTarget, Integer.MAX_VALUE);
+							for (UUID id : soloAutoTargets) revealedPlayers.put(id, Integer.MAX_VALUE);
 						} else {
-							// Linger expired — remove solo reveal
-							revealedPlayers.remove(soloAutoTarget);
+							for (UUID id : soloAutoTargets) revealedPlayers.remove(id);
 							if (ModConfig.soloAutoActionBar && client.player != null)
 								client.player.sendMessage(Text.literal("§eSolo mode: §cLOST"), true);
-							soloAutoTarget = null;
+							soloAutoTargets.clear();
 						}
 					}
 				}
@@ -140,10 +141,7 @@ public class HitboxRevealClient implements ClientModInitializer {
 
 			for (PlayerEntity player : client.world.getPlayers()) {
 				boolean isSelf = player == client.player;
-
-				// Self-reveal permanent
-				MinecraftClient mc = MinecraftClient.getInstance();
-				boolean isThirdPerson = mc.options.getPerspective().isFirstPerson() == false;
+				boolean isThirdPerson = !client.options.getPerspective().isFirstPerson();
 
 				if (isSelf && ModConfig.selfReveal && ModConfig.selfRevealPermanent) {
 					if (!isThirdPerson) continue;
@@ -152,9 +150,6 @@ public class HitboxRevealClient implements ClientModInitializer {
 				}
 
 				if (isSelf && (!ModConfig.selfReveal || !isThirdPerson || !revealedPlayers.containsKey(player.getUuid()))) continue;
-
-				// Skip self unless self-reveal on-hit is active
-
 				if (!revealedPlayers.containsKey(player.getUuid())) continue;
 
 				boolean critReady = !player.isOnGround()
@@ -167,17 +162,12 @@ public class HitboxRevealClient implements ClientModInitializer {
 				else if (dist <= ModConfig.closeRangeThreshold) color = ModConfig.colorClose;
 				else color = ModConfig.colorDefault;
 
-				// Fade alpha
 				float alpha = 1.0f;
 				if (ModConfig.fadeOut && !ModConfig.permanent) {
 					int remaining = revealedPlayers.getOrDefault(player.getUuid(), 0);
-					int fadeZone = Math.min(ModConfig.revealTicks, 40); // fade over last 2s
-					if (remaining < fadeZone) {
-						alpha = (float) remaining / fadeZone;
-					}
+					int fadeZone = Math.min(ModConfig.revealTicks, 40);
+					if (remaining < fadeZone) alpha = (float) remaining / fadeZone;
 				}
-
-				// Pulse alpha (multiplied on top of fade)
 				if (ModConfig.pulse) {
 					float pulse = 0.6f + 0.4f * (float) Math.sin(now / 1000.0 * ModConfig.pulseSpeed * Math.PI * 2);
 					alpha *= pulse;
@@ -186,10 +176,10 @@ public class HitboxRevealClient implements ClientModInitializer {
 				HitboxRenderer.renderBox(context, player, color, alpha);
 			}
 
-			// Range indicator (drawn once around local player's attack range)
+			// Range indicator
 			if (ModConfig.rangeIndicator && client.player != null) {
 				float pulseAlpha = 1.0f;
-				if (ModConfig.soloAutoReveal && ModConfig.soloAutoRangeIndicatorPulse && soloAutoTarget != null) {
+				if (ModConfig.soloAutoReveal && ModConfig.soloAutoRangeIndicatorPulse && !soloAutoTargets.isEmpty()) {
 					pulseAlpha = 0.5f + 0.5f * (float) Math.sin(System.currentTimeMillis() / 300.0 * Math.PI * 2);
 				}
 				HitboxRenderer.renderRangeCircle(context, client.player, pulseAlpha);
@@ -199,7 +189,8 @@ public class HitboxRevealClient implements ClientModInitializer {
 			for (net.minecraft.entity.Entity entity : client.world.getEntities()) {
 				if (ModConfig.entityOnlyEnemy) {
 					boolean isTntCart = entity instanceof TntMinecartEntity;
-					if (!isTntCart) {
+					boolean isBoat = entity instanceof BoatEntity || entity instanceof ChestBoatEntity;
+					if (!isTntCart && !isBoat) {
 						if (!(entity instanceof net.minecraft.entity.projectile.ProjectileEntity proj)) continue;
 						if (proj.getOwner() == client.player) continue;
 					}
@@ -215,12 +206,15 @@ public class HitboxRevealClient implements ClientModInitializer {
 					HitboxRenderer.renderEntityBox(context, entity, ModConfig.colorTntMinecart, ModConfig.tntMinecartSizeMulti, ModConfig.tntMinecartOutlineOnly);
 				} else if (ModConfig.fireballEnabled && entity instanceof FireballEntity) {
 					HitboxRenderer.renderEntityBox(context, entity, ModConfig.colorFireball, ModConfig.fireballSizeMulti, ModConfig.fireballOutlineOnly);
+				} else if (ModConfig.boatEnabled && (entity instanceof BoatEntity || entity instanceof ChestBoatEntity)) {
+					HitboxRenderer.renderEntityBox(context, entity, ModConfig.colorBoat, ModConfig.boatSizeMulti, ModConfig.boatOutlineOnly);
 				}
 			}
 		});
 
 		net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.DISCONNECT.register((handler, client2) -> {
 			revealedPlayers.clear();
+			soloAutoTargets.clear();
 		});
 
 		UpdateChecker.checkAsync();
