@@ -89,6 +89,21 @@ public class ModConfig {
     public static int     soloAutoLinger        = 40;
     public static boolean soloAutoActionBar     = true;
     public static boolean soloAutoRangeIndicatorPulse = true;
+    // Pearl trajectories
+    public static boolean pearlTrailEnabled        = true;
+    public static int     pearlTrailColorStart     = 0xFF8800FF;
+    public static int     pearlTrailColorEnd       = 0xFF00EEFF;
+    public static float   pearlTrailOpacity        = 0.85f;
+    public static float   pearlTrailWidth          = 1.0f;
+    public static int     pearlTrailMaxPoints      = 150;
+    public static int     pearlTrailPersistMs      = 2000;
+    public static boolean pearlTrailShowOwn        = false;
+    public static boolean pearlLandingBeamEnabled  = true;
+    public static int     pearlBeamColor           = 0xFF6633FF;
+    public static float   pearlBeamOpacity         = 1.0f;
+    public static float   pearlBeamDuration        = 3.0f;
+    public static boolean pearlLandingParticles    = true;
+    public static boolean pearlLightningEnabled    = true;
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final Path CONFIG_PATH =
@@ -142,6 +157,11 @@ public class ModConfig {
         int     soloAutoLinger;
         boolean soloAutoActionBar;
         boolean soloAutoRangeIndicatorPulse;
+        boolean pearlTrailEnabled; int pearlTrailColorStart; int pearlTrailColorEnd;
+        float pearlTrailOpacity; float pearlTrailWidth; int pearlTrailMaxPoints; int pearlTrailPersistMs;
+        boolean pearlTrailShowOwn;
+        boolean pearlLandingBeamEnabled; int pearlBeamColor; float pearlBeamOpacity; float pearlBeamDuration;
+        boolean pearlLandingParticles; boolean pearlLightningEnabled;
     }
 
     public static void load() {
@@ -225,6 +245,20 @@ public class ModConfig {
             soloAutoLinger               = d.soloAutoLinger != 0 ? d.soloAutoLinger : 40;
             soloAutoActionBar            = d.soloAutoActionBar;
             soloAutoRangeIndicatorPulse  = d.soloAutoRangeIndicatorPulse;
+            pearlTrailEnabled       = d.pearlTrailEnabled;
+            pearlTrailColorStart    = d.pearlTrailColorStart != 0 ? d.pearlTrailColorStart : 0xFF8800FF;
+            pearlTrailColorEnd      = d.pearlTrailColorEnd   != 0 ? d.pearlTrailColorEnd   : 0xFF00EEFF;
+            pearlTrailOpacity       = d.pearlTrailOpacity    != 0 ? d.pearlTrailOpacity    : 0.85f;
+            pearlTrailWidth         = d.pearlTrailWidth      != 0 ? d.pearlTrailWidth      : 1.0f;
+            pearlTrailMaxPoints     = d.pearlTrailMaxPoints  != 0 ? d.pearlTrailMaxPoints  : 150;
+            pearlTrailPersistMs     = d.pearlTrailPersistMs  != 0 ? d.pearlTrailPersistMs  : 2000;
+            pearlTrailShowOwn       = d.pearlTrailShowOwn;
+            pearlLandingBeamEnabled = d.pearlLandingBeamEnabled;
+            pearlBeamColor          = d.pearlBeamColor    != 0 ? d.pearlBeamColor    : 0xFF6633FF;
+            pearlBeamOpacity        = d.pearlBeamOpacity  != 0 ? d.pearlBeamOpacity  : 1.0f;
+            pearlBeamDuration       = d.pearlBeamDuration != 0 ? d.pearlBeamDuration : 3.0f;
+            pearlLandingParticles   = d.pearlLandingParticles;
+            pearlLightningEnabled   = d.pearlLightningEnabled;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -307,6 +341,20 @@ public class ModConfig {
         d.soloAutoLinger               = soloAutoLinger;
         d.soloAutoActionBar            = soloAutoActionBar;
         d.soloAutoRangeIndicatorPulse  = soloAutoRangeIndicatorPulse;
+        d.pearlTrailEnabled       = pearlTrailEnabled;
+        d.pearlTrailColorStart    = pearlTrailColorStart;
+        d.pearlTrailColorEnd      = pearlTrailColorEnd;
+        d.pearlTrailOpacity       = pearlTrailOpacity;
+        d.pearlTrailWidth         = pearlTrailWidth;
+        d.pearlTrailMaxPoints     = pearlTrailMaxPoints;
+        d.pearlTrailPersistMs     = pearlTrailPersistMs;
+        d.pearlTrailShowOwn       = pearlTrailShowOwn;
+        d.pearlLandingBeamEnabled = pearlLandingBeamEnabled;
+        d.pearlBeamColor          = pearlBeamColor;
+        d.pearlBeamOpacity        = pearlBeamOpacity;
+        d.pearlBeamDuration       = pearlBeamDuration;
+        d.pearlLandingParticles   = pearlLandingParticles;
+        d.pearlLightningEnabled   = pearlLightningEnabled;
         try (Writer w = new FileWriter(CONFIG_PATH.toFile())) {
             GSON.toJson(d, w);
         } catch (Exception e) {
