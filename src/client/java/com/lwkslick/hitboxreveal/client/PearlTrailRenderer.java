@@ -1,3 +1,6 @@
+// Pearl trajectory rendering (trail, landing beam, lightning) adapted from
+// Pearl-Trajectories-Fabric by szokk (MIT License)
+// https://github.com/szokk/Pearl-Trajectories-Fabric
 package com.lwkslick.hitboxreveal.client;
 
 import com.mojang.blaze3d.pipeline.RenderPipeline;
