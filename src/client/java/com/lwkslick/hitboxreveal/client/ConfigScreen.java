@@ -116,13 +116,6 @@ public class ConfigScreen {
                                 .controller(opt -> FloatSliderControllerBuilder.create(opt).range(2.0f, 8.0f).step(0.5f))
                                 .build())
 
-                        .option(ButtonOption.createBuilder()
-                                .name(Text.literal("Friends (Ignore List)"))
-                                .description(OptionDescription.of(Text.literal("Players in this list will never have their hitbox revealed.")))
-                                .text(Text.literal("Open"))
-                                .action((screen, opt) -> MinecraftClient.getInstance().setScreen(FriendsScreen.create(screen)))
-                                .build())
-
                         .build())
 
                 // ── Solo Auto-Reveal ─────────────────────────────────────────────
@@ -584,6 +577,21 @@ public class ConfigScreen {
                         .build())
 
                 .build())
+
+                // ── Friends ─────────────────────────────────────────────────────
+                // ListOption approach adapted from HitBoxPlus by pingisfun (MIT)
+                // https://github.com/pingisfun/HitBoxPlus
+                .category(ConfigCategory.createBuilder()
+                        .name(Text.literal("Friends"))
+                        .group(ListOption.<String>createBuilder()
+                                .name(Text.literal("Friends (Ignore List)"))
+                                .description(OptionDescription.of(Text.literal("Players in this list will never have their hitbox revealed.")))
+                                .binding(new java.util.ArrayList<>(), () -> ModConfig.friends, v -> ModConfig.friends = new java.util.ArrayList<>(v))
+                                .controller(StringControllerBuilder::create)
+                                .initial("")
+                                .insertEntriesAtEnd(true)
+                                .build())
+                        .build())
 
                 .build()
                 .generateScreen(parent);

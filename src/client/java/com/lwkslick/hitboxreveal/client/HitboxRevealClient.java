@@ -45,7 +45,6 @@ public class HitboxRevealClient implements ClientModInitializer {
 
 	private static KeyBinding toggleKey;
 	private static KeyBinding configKey;
-	private static KeyBinding friendsKey;
 
 	@Override
 	public void onInitializeClient() {
@@ -57,9 +56,6 @@ public class HitboxRevealClient implements ClientModInitializer {
 		));
 		configKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
 				"key.hitboxreveal.config", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_B, hitboxCategory
-		));
-		friendsKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-				"key.hitboxreveal.friends", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_N, hitboxCategory
 		));
 
 		AttackEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
@@ -149,11 +145,6 @@ public class HitboxRevealClient implements ClientModInitializer {
 			while (configKey.wasPressed()) {
 				if (client.currentScreen == null) {
 					client.setScreen(ConfigScreen.create(null));
-				}
-			}
-			while (friendsKey.wasPressed()) {
-				if (client.currentScreen == null) {
-					client.setScreen(FriendsScreen.create(null));
 				}
 			}
 
