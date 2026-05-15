@@ -98,12 +98,6 @@ public class ModConfig {
     public static int     pearlTrailMaxPoints      = 150;
     public static int     pearlTrailPersistMs      = 2000;
     public static boolean pearlTrailShowOwn        = false;
-    public static boolean pearlLandingBeamEnabled  = true;
-    public static int     pearlBeamColor           = 0xFF6633FF;
-    public static float   pearlBeamOpacity         = 1.0f;
-    public static float   pearlBeamDuration        = 3.0f;
-    public static boolean pearlLandingParticles    = true;
-    public static boolean pearlLightningEnabled    = true;
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final Path CONFIG_PATH =
@@ -160,8 +154,6 @@ public class ModConfig {
         boolean pearlTrailEnabled; int pearlTrailColorStart; int pearlTrailColorEnd;
         float pearlTrailOpacity; float pearlTrailWidth; int pearlTrailMaxPoints; int pearlTrailPersistMs;
         boolean pearlTrailShowOwn;
-        boolean pearlLandingBeamEnabled; int pearlBeamColor; float pearlBeamOpacity; float pearlBeamDuration;
-        boolean pearlLandingParticles; boolean pearlLightningEnabled;
     }
 
     public static void load() {
@@ -253,12 +245,6 @@ public class ModConfig {
             pearlTrailMaxPoints     = d.pearlTrailMaxPoints  != 0 ? d.pearlTrailMaxPoints  : 150;
             pearlTrailPersistMs     = d.pearlTrailPersistMs  != 0 ? d.pearlTrailPersistMs  : 2000;
             pearlTrailShowOwn       = d.pearlTrailShowOwn;
-            pearlLandingBeamEnabled = d.pearlLandingBeamEnabled;
-            pearlBeamColor          = d.pearlBeamColor    != 0 ? d.pearlBeamColor    : 0xFF6633FF;
-            pearlBeamOpacity        = d.pearlBeamOpacity  != 0 ? d.pearlBeamOpacity  : 1.0f;
-            pearlBeamDuration       = d.pearlBeamDuration != 0 ? d.pearlBeamDuration : 3.0f;
-            pearlLandingParticles   = d.pearlLandingParticles;
-            pearlLightningEnabled   = d.pearlLightningEnabled;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -349,12 +335,6 @@ public class ModConfig {
         d.pearlTrailMaxPoints     = pearlTrailMaxPoints;
         d.pearlTrailPersistMs     = pearlTrailPersistMs;
         d.pearlTrailShowOwn       = pearlTrailShowOwn;
-        d.pearlLandingBeamEnabled = pearlLandingBeamEnabled;
-        d.pearlBeamColor          = pearlBeamColor;
-        d.pearlBeamOpacity        = pearlBeamOpacity;
-        d.pearlBeamDuration       = pearlBeamDuration;
-        d.pearlLandingParticles   = pearlLandingParticles;
-        d.pearlLightningEnabled   = pearlLightningEnabled;
         try (Writer w = new FileWriter(CONFIG_PATH.toFile())) {
             GSON.toJson(d, w);
         } catch (Exception e) {

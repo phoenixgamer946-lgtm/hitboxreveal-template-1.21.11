@@ -6,7 +6,7 @@ import net.minecraft.text.Text;
 
 public class UpdateChecker {
 
-    private static final String MOD_ID = "hitboxreveal";
+    private static final String MOD_ID = "hitbox-reveal";
     private static final String API_URL =
             "https://api.modrinth.com/v2/project/" + MOD_ID + "/version";
 

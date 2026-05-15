@@ -35,8 +35,6 @@ public class HitboxRevealClient implements ClientModInitializer {
 	public static final Map<UUID, Integer> revealedPlayers = new HashMap<>();
 	// Pearl trail state
 	public static final Map<UUID, List<Vec3d>> pearlTrails    = new HashMap<>();
-	public static final Map<UUID, Long>        pearlLandingEffects = new HashMap<>();
-	public static final Map<UUID, Vec3d>       landingPositions    = new HashMap<>();
 	private static final Map<UUID, Vec3d>      pearlLastPos        = new HashMap<>();
 
 	// Tracks all UUIDs currently being auto-revealed by solo auto-reveal
@@ -73,48 +71,21 @@ public class HitboxRevealClient implements ClientModInitializer {
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			// ── Pearl trail tracking ──────────────────────────────────────
-			if (client.world != null && client.player != null) {
+			if (ModConfig.enabled && client.world != null && client.player != null) {
 				Vec3d playerPos = new Vec3d(client.player.getX(), client.player.getY(), client.player.getZ());
 				Box searchBox = new Box(playerPos.subtract(200, 200, 200), playerPos.add(200, 200, 200));
 				List<EnderPearlEntity> pearls = client.world.getEntitiesByClass(
 						EnderPearlEntity.class, searchBox, e -> true);
-				long now = System.currentTimeMillis();
 
-				// Mark removed pearls
-				for (UUID id : new ArrayList<>(pearlTrails.keySet())) {
-					boolean stillActive = pearls.stream().anyMatch(p -> p.getUuid().equals(id) && !p.isRemoved());
-					if (!stillActive && !pearlLandingEffects.containsKey(id)) {
-						pearlLandingEffects.put(id, now);
-						Vec3d lp = pearlLastPos.get(id);
-						if (lp != null) {
-							landingPositions.put(id, lp);
-							if (ModConfig.pearlLandingParticles) {
-								for (int i = 0; i < 30; i++) {
-									client.particleManager.addParticle(
-											net.minecraft.particle.ParticleTypes.PORTAL,
-											lp.x + (Math.random()-0.5)*2,
-											lp.y + Math.random()*2,
-											lp.z + (Math.random()-0.5)*2,
-											(Math.random()-0.5)*0.5, Math.random()*0.5, (Math.random()-0.5)*0.5);
-								}
-							}
-						}
-					}
-				}
-
-				// Expire landing effects
-				long persistMs = ModConfig.pearlTrailPersistMs;
-				long beamMs    = (long)(ModConfig.pearlBeamDuration * 1000);
-				pearlLandingEffects.entrySet().removeIf(e -> now - e.getValue() > Math.max(persistMs, beamMs));
+				// Remove trails for pearls that have landed
 				pearlTrails.keySet().removeIf(id -> {
-					if (pearlLandingEffects.containsKey(id) && now - pearlLandingEffects.get(id) > persistMs) {
+					boolean stillActive = pearls.stream().anyMatch(p -> p.getUuid().equals(id) && !p.isRemoved());
+					if (!stillActive) {
 						pearlLastPos.remove(id);
 						return true;
 					}
 					return false;
 				});
-				landingPositions.keySet().removeIf(id ->
-						pearlLandingEffects.containsKey(id) && now - pearlLandingEffects.get(id) > beamMs);
 
 				// Track active pearls
 				for (EnderPearlEntity pearl : pearls) {
@@ -240,7 +211,7 @@ public class HitboxRevealClient implements ClientModInitializer {
 
 			// Range indicator
 			// Pearl trail renderer
-			PearlTrailRenderer.render(context, pearlTrails, pearlLandingEffects);
+			PearlTrailRenderer.render(context, pearlTrails);
 			if (ModConfig.rangeIndicator && client.player != null) {
 				float pulseAlpha = 1.0f;
 				if (ModConfig.soloAutoReveal && ModConfig.soloAutoRangeIndicatorPulse && !soloAutoTargets.isEmpty()) {
@@ -250,6 +221,8 @@ public class HitboxRevealClient implements ClientModInitializer {
 			}
 
 			// Entity hitboxes
+			boolean anyEntityEnabled = ModConfig.pearlEnabled || ModConfig.arrowEnabled || ModConfig.windChargeEnabled || ModConfig.tntMinecartEnabled || ModConfig.fireballEnabled || ModConfig.boatEnabled;
+			if (anyEntityEnabled) {
 			for (net.minecraft.entity.Entity entity : client.world.getEntities()) {
 				if (ModConfig.entityOnlyEnemy) {
 					boolean isTntCart = entity instanceof TntMinecartEntity;
@@ -274,13 +247,12 @@ public class HitboxRevealClient implements ClientModInitializer {
 					HitboxRenderer.renderEntityBox(context, entity, ModConfig.colorBoat, ModConfig.boatSizeMulti, ModConfig.boatOutlineOnly);
 				}
 			}
+			}
 		});
 
 		net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.DISCONNECT.register((handler, client2) -> {
 			revealedPlayers.clear();
 			pearlTrails.clear();
-			pearlLandingEffects.clear();
-			landingPositions.clear();
 			pearlLastPos.clear();
 			soloAutoTargets.clear();
 		});
