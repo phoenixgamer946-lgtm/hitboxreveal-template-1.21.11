@@ -30,6 +30,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import net.minecraft.entity.projectile.SpectralArrowEntity;
+import net.minecraft.entity.projectile.TridentEntity;
+import net.minecraft.entity.projectile.thrown.SnowballEntity;
+import net.minecraft.entity.projectile.thrown.EggEntity;
+import net.minecraft.entity.projectile.thrown.PotionEntity;
+import net.minecraft.entity.projectile.WitherSkullEntity;
+import net.minecraft.entity.projectile.ShulkerBulletEntity;
+import net.minecraft.entity.decoration.EndCrystalEntity;
+import net.minecraft.entity.TntEntity;
+import net.minecraft.entity.projectile.FireworkRocketEntity;
+import net.minecraft.entity.AreaEffectCloudEntity;
+import net.minecraft.entity.mob.EvokerFangsEntity;
+import net.minecraft.entity.EyeOfEnderEntity;
+import net.minecraft.entity.projectile.FishingBobberEntity;
+
 public class HitboxRevealClient implements ClientModInitializer {
 
 	public static final Map<UUID, Integer> revealedPlayers = new HashMap<>();
@@ -221,7 +236,7 @@ public class HitboxRevealClient implements ClientModInitializer {
 			}
 
 			// Entity hitboxes
-			boolean anyEntityEnabled = ModConfig.pearlEnabled || ModConfig.arrowEnabled || ModConfig.windChargeEnabled || ModConfig.tntMinecartEnabled || ModConfig.fireballEnabled || ModConfig.boatEnabled;
+			boolean anyEntityEnabled = ModConfig.pearlEnabled || ModConfig.arrowEnabled || ModConfig.windChargeEnabled || ModConfig.tntMinecartEnabled || ModConfig.fireballEnabled || ModConfig.boatEnabled || ModConfig.spectralArrowEnabled || ModConfig.tridentEnabled || ModConfig.snowballEnabled || ModConfig.eggEnabled || ModConfig.potionEnabled || ModConfig.witherSkullEnabled || ModConfig.shulkerBulletEnabled || ModConfig.endCrystalEnabled || ModConfig.tntEnabled || ModConfig.fireworkEnabled || ModConfig.areaEffectCloudEnabled || ModConfig.evokerFangsEnabled || ModConfig.eyeOfEnderEnabled || ModConfig.fishingBobberEnabled;
 			if (anyEntityEnabled) {
 			for (net.minecraft.entity.Entity entity : client.world.getEntities()) {
 				if (ModConfig.entityOnlyEnemy) {
@@ -245,6 +260,34 @@ public class HitboxRevealClient implements ClientModInitializer {
 					HitboxRenderer.renderEntityBox(context, entity, ModConfig.colorFireball, ModConfig.fireballSizeMulti, ModConfig.fireballOutlineOnly);
 				} else if (ModConfig.boatEnabled && (entity instanceof BoatEntity || entity instanceof ChestBoatEntity)) {
 					HitboxRenderer.renderEntityBox(context, entity, ModConfig.colorBoat, ModConfig.boatSizeMulti, ModConfig.boatOutlineOnly);
+				} else if (ModConfig.spectralArrowEnabled && entity instanceof SpectralArrowEntity) {
+					HitboxRenderer.renderEntityBox(context, entity, ModConfig.colorSpectralArrow, ModConfig.spectralArrowSizeMulti, ModConfig.spectralArrowOutlineOnly);
+				} else if (ModConfig.tridentEnabled && entity instanceof TridentEntity) {
+					HitboxRenderer.renderEntityBox(context, entity, ModConfig.colorTrident, ModConfig.tridentSizeMulti, ModConfig.tridentOutlineOnly);
+				} else if (ModConfig.snowballEnabled && entity instanceof SnowballEntity) {
+					HitboxRenderer.renderEntityBox(context, entity, ModConfig.colorSnowball, ModConfig.snowballSizeMulti, ModConfig.snowballOutlineOnly);
+				} else if (ModConfig.eggEnabled && entity instanceof EggEntity) {
+					HitboxRenderer.renderEntityBox(context, entity, ModConfig.colorEgg, ModConfig.eggSizeMulti, ModConfig.eggOutlineOnly);
+				} else if (ModConfig.potionEnabled && entity instanceof PotionEntity) {
+					HitboxRenderer.renderEntityBox(context, entity, ModConfig.colorPotion, ModConfig.potionSizeMulti, ModConfig.potionOutlineOnly);
+				} else if (ModConfig.witherSkullEnabled && entity instanceof WitherSkullEntity) {
+					HitboxRenderer.renderEntityBox(context, entity, ModConfig.colorWitherSkull, ModConfig.witherSkullSizeMulti, ModConfig.witherSkullOutlineOnly);
+				} else if (ModConfig.shulkerBulletEnabled && entity instanceof ShulkerBulletEntity) {
+					HitboxRenderer.renderEntityBox(context, entity, ModConfig.colorShulkerBullet, ModConfig.shulkerBulletSizeMulti, ModConfig.shulkerBulletOutlineOnly);
+				} else if (ModConfig.endCrystalEnabled && entity instanceof EndCrystalEntity) {
+					HitboxRenderer.renderEntityBox(context, entity, ModConfig.colorEndCrystal, ModConfig.endCrystalSizeMulti, ModConfig.endCrystalOutlineOnly);
+				} else if (ModConfig.tntEnabled && entity instanceof TntEntity) {
+					HitboxRenderer.renderEntityBox(context, entity, ModConfig.colorTnt, ModConfig.tntSizeMulti, ModConfig.tntOutlineOnly);
+				} else if (ModConfig.fireworkEnabled && entity instanceof FireworkRocketEntity) {
+					HitboxRenderer.renderEntityBox(context, entity, ModConfig.colorFirework, ModConfig.fireworkSizeMulti, ModConfig.fireworkOutlineOnly);
+				} else if (ModConfig.areaEffectCloudEnabled && entity instanceof AreaEffectCloudEntity) {
+					HitboxRenderer.renderEntityBox(context, entity, ModConfig.colorAreaEffectCloud, ModConfig.areaEffectCloudSizeMulti, ModConfig.areaEffectCloudOutlineOnly);
+				} else if (ModConfig.evokerFangsEnabled && entity instanceof EvokerFangsEntity) {
+					HitboxRenderer.renderEntityBox(context, entity, ModConfig.colorEvokerFangs, ModConfig.evokerFangsSizeMulti, ModConfig.evokerFangsOutlineOnly);
+				} else if (ModConfig.eyeOfEnderEnabled && entity instanceof EyeOfEnderEntity) {
+					HitboxRenderer.renderEntityBox(context, entity, ModConfig.colorEyeOfEnder, ModConfig.eyeOfEnderSizeMulti, ModConfig.eyeOfEnderOutlineOnly);
+				} else if (ModConfig.fishingBobberEnabled && entity instanceof FishingBobberEntity) {
+					HitboxRenderer.renderEntityBox(context, entity, ModConfig.colorFishingBobber, ModConfig.fishingBobberSizeMulti, ModConfig.fishingBobberOutlineOnly);
 				}
 			}
 			}
